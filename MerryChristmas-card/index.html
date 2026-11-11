@@ -115,6 +115,14 @@ h1 .hb{display:inline-block;animation:hb 1.6s ease-in-out infinite}
   box-shadow:0 0 0 3px rgba(255,210,62,.55),0 10px 26px rgba(180,120,40,.35);
   animation:glow 2s ease-in-out infinite}
 @keyframes glow{50%{box-shadow:0 0 0 6px rgba(255,210,62,.25),0 10px 26px rgba(180,120,40,.3)}}
+/* ═══ 冬至格（12.22）special ═══ */
+.cell.dongzhi .box-top{background:linear-gradient(160deg,#5a6f9c,#31415f)!important}
+.cell.dongzhi .gift .g-body{background:#e8ecf5;opacity:.9}
+.cell.dongzhi .gift .g-lid{background:#e8ecf5}
+.dz-pin{position:absolute;top:9px;left:9px;background:#e8ecf5;color:#31415f;
+  font-size:10px;padding:3px 9px;border-radius:99px;letter-spacing:.15em;z-index:7;font-weight:700}
+.dz-note{margin:6px auto 0;max-width:560px;padding:0 22px;text-align:center;
+  font-size:12px;color:#eaf1ff;letter-spacing:.2em;text-shadow:0 2px 6px rgba(30,50,90,.4)}
 .today-pin{position:absolute;top:9px;right:9px;background:#ffd23e;color:#8c2b26;
   font-size:10px;padding:3px 9px;border-radius:99px;letter-spacing:.15em;z-index:6;font-weight:700}
 .opened-mark{position:absolute;top:9px;left:9px;font-size:11px;color:#fff;
@@ -196,10 +204,12 @@ footer .admin-trigger{cursor:default;user-select:none;opacity:.55}
 </div>
 
 <div class="grid" id="grid"></div>
+<div class="dz-note">❄ 12 / 22 是冬至 · 那天的盒子是特别的一格 ❄</div>
 
 <footer>
   <div>🔔 ❄ 🎄 ❄ 🔔</div>
   <div>MERRY CHRISTMAS · 拆完最后一个，圣诞就到了</div>
+  <div style="margin-top:6px"><a href="https://github.com/kanoshuuya-code/MerryChristmas-YY" target="_blank" rel="noopener" style="color:#ffe9c4;text-decoration:underline;text-underline-offset:4px;opacity:.8">🧑‍💻 TO YY · GitHub</a></div>
   <div class="admin-trigger" id="adminTrigger">· TO YY ·</div>
 </footer>
 
@@ -322,9 +332,11 @@ function renderGrid(){
     var locked=!PREVIEW && t<d;
     var isToday=t.getTime()===d.getTime();
     var cell=document.createElement("div");
-    cell.className="cell"+(locked?" locked":"")+(isToday?" today":"");
+    var isDongzhi = b.date==="2026-12-22";
+    cell.className="cell"+(locked?" locked":"")+(isToday?" today":"")+(isDongzhi?" dongzhi":"");
     cell.innerHTML=
       '<div class="box">'+
+        (isDongzhi?'<span class="dz-pin">冬至 ❄</span>':'')+
         (isToday?'<span class="today-pin">今天</span>':'')+
         (!locked?'<span class="opened-mark" style="display:none">已拆 ✓</span>':'')+
         '<div class="box-top">'+
