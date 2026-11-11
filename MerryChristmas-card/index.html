@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>圣诞盲盒 · TO YY</title>
+<style>
+:root{
+  --red:#b03a34; --red-deep:#8c2b26; --green:#31604a; --green-deep:#244a39;
+  --cream:#fff6e8; --paper:#fffdf6; --gold:#d9a441; --ink:#4a352a;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  background:linear-gradient(180deg,#8c2b26 0%,#b03a34 26%,#d9694f 44%,#f2c88a 72%,#faeccd 100%);
+  color:var(--ink); min-height:100vh; overflow-x:hidden;
+}
+#snow{position:fixed;inset:0;pointer-events:none;z-index:1}
+
+/* ═══ 圣诞彩灯 ═══ */
+.lights{
+  position:fixed;top:0;left:0;right:0;height:34px;z-index:5;pointer-events:none;
+  display:flex;justify-content:space-around;align-items:flex-start;padding:0 6px;
+}
+.bulb{
+  width:12px;height:12px;border-radius:50%;margin-top:10px;position:relative;
+  animation:blink 1.8s ease-in-out infinite;
+  box-shadow:0 0 10px 3px currentColor;
+}
+.bulb::before{content:"";position:absolute;top:-7px;left:50%;transform:translateX(-50%);
+  width:4px;height:8px;background:#4a6b3a;border-radius:2px}
+.bulb::after{content:"";position:absolute;top:8px;left:4px;width:2px;height:10px;
+  background:rgba(255,255,255,.5)}
+.b1{color:#ffd23e;background:#ffd23e}.b2{color:#ff6b6b;background:#ff6b6b;animation-delay:.3s}
+.b3{color:#6bd66b;background:#6bd66b;animation-delay:.6s}
+.b4{color:#5db9ff;background:#5db9ff;animation-delay:.9s}
+.b5{color:#ff9de2;background:#ff9de2;animation-delay:1.2s}
+.b6{color:#ffd23e;background:#ffd23e;animation-delay:1.5s}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ═══ 头部 ═══ */
+header{position:relative;z-index:2;text-align:center;padding:60px 20px 20px}
+.badge{
+  display:inline-block;background:var(--green);color:var(--cream);
+  font-size:12px;letter-spacing:.35em;padding:6px 16px 6px 20px;border-radius:99px;
+  box-shadow:0 4px 14px rgba(0,60,30,.4);
+}
+h1{margin-top:16px;font-size:clamp(26px,7vw,40px);letter-spacing:.12em;color:#fff;
+  font-weight:700;text-shadow:0 3px 12px rgba(120,30,20,.5)}
+h1 .hb{display:inline-block;animation:hb 1.6s ease-in-out infinite}
+@keyframes hb{0%,100%{transform:scale(1) rotate(-4deg)}50%{transform:scale(1.18) rotate(8deg)}}
+.sub{margin-top:10px;font-size:14px;color:#ffe9c4;letter-spacing:.22em}
+.count{margin-top:14px;font-size:13px;color:#fff3d9;letter-spacing:.15em}
+.count b{font-size:20px;color:#ffd23e;padding:0 3px}
+
+/* 花环分隔 */
+.garland{position:relative;z-index:2;text-align:center;font-size:22px;letter-spacing:.6em;
+  margin-top:8px;text-shadow:0 2px 8px rgba(0,0,0,.25)}
+
+/* ═══ 提示条 ═══ */
+.howto{position:relative;z-index:2;max-width:560px;margin:16px auto 0;padding:0 22px}
+.howto p{
+  background:rgba(255,253,246,.92);border:2px solid #d9b98c;border-radius:16px;
+  padding:14px 18px;font-size:13px;line-height:1.9;color:#7a5c44;text-align:center;
+  box-shadow:0 8px 24px rgba(120,50,20,.18);
+}
+
+/* ═══ 盲盒格 ═══ */
+.grid{
+  position:relative;z-index:2;max-width:620px;margin:28px auto 10px;padding:0 18px 20px;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:20px;
+}
+.cell{perspective:900px;cursor:pointer;text-align:center}
+.box{
+  position:relative;border-radius:18px;background:var(--paper);
+  border:2.5px solid #ecd9b8;overflow:hidden;
+  box-shadow:0 10px 26px rgba(90,30,20,.28);
+  transition:transform .25s ease;
+}
+.cell:not(.locked) .box:hover{transform:translateY(-6px)}
+/* CSS 手绘礼盒：盖 + 身 + 竖丝带 + 蝴蝶结 + 雪盖 */
+.box-top{height:118px;position:relative;overflow:hidden;
+  background:linear-gradient(160deg,#c9503f,#9c2f28)}
+.cell:nth-child(even) .box-top{background:linear-gradient(160deg,#3f7a5c,#27503d)}
+.cell:nth-child(3n) .box-top{background:linear-gradient(160deg,#4a6bb5,#2d3f7a)}
+.box-top::after{content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 30% 22%,rgba(255,255,255,.32),transparent 55%)}
+.gift{position:absolute;inset:0}
+.g-lid{position:absolute;left:9%;right:9%;top:26%;height:16px;border-radius:6px;
+  background:var(--gold);box-shadow:0 3px 6px rgba(0,0,0,.25);z-index:3}
+.g-body{position:absolute;left:14%;right:14%;top:46%;bottom:12%;
+  background:var(--gold);border-radius:0 0 8px 8px;opacity:.95}
+.g-ribbon-v{position:absolute;left:50%;top:0;bottom:0;width:9px;background:var(--cream);
+  transform:translateX(-50%);opacity:.92;z-index:2}
+.g-bow{position:absolute;left:50%;top:12%;transform:translateX(-50%);z-index:4}
+.g-bow i{display:inline-block;width:20px;height:13px;background:var(--cream);
+  border-radius:60%;margin:0 1px}
+.g-bow i:first-child{transform:rotate(-22deg)}
+.g-bow i:last-child{transform:rotate(22deg)}
+.g-bow b{position:absolute;left:50%;top:4px;transform:translateX(-50%);width:10px;height:10px;
+  border-radius:50%;background:#fff0cf;box-shadow:0 0 0 2px rgba(255,255,255,.4)}
+.snowcap{position:absolute;top:0;left:0;right:0;height:14px;z-index:5;
+  background:radial-gradient(circle at 10px 0,transparent 9px,#fff 10px) repeat-x;
+  background-size:20px 14px;opacity:.9}
+.cell:not(.locked):hover .gift .g-lid{animation:lidjump .5s ease}
+@keyframes lidjump{40%{transform:translateY(-6px) rotate(-2deg)}}
+.box-info{padding:12px 10px 14px;background:var(--paper)}
+.day-tag{font-size:11px;letter-spacing:.3em;color:#b08d5f}
+.box-title{margin-top:4px;font-size:15px;font-weight:700;color:var(--red-deep);letter-spacing:.14em}
+.cell.locked{cursor:default;opacity:.62}
+.cell.locked .box-top{background:linear-gradient(160deg,#c2b49e,#968873)}
+.cell.locked .gift{filter:grayscale(.5);opacity:.75}
+.cell.today .box{border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(255,210,62,.55),0 10px 26px rgba(180,120,40,.35);
+  animation:glow 2s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 0 6px rgba(255,210,62,.25),0 10px 26px rgba(180,120,40,.3)}}
+.today-pin{position:absolute;top:9px;right:9px;background:#ffd23e;color:#8c2b26;
+  font-size:10px;padding:3px 9px;border-radius:99px;letter-spacing:.15em;z-index:6;font-weight:700}
+.opened-mark{position:absolute;top:9px;left:9px;font-size:11px;color:#fff;
+  background:rgba(0,0,0,.3);padding:3px 9px;border-radius:99px;letter-spacing:.2em;z-index:6}
+
+/* ═══ 卡片弹层 ═══ */
+.overlay{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;
+  background:rgba(50,20,10,.5);backdrop-filter:blur(4px);padding:22px}
+.overlay.show{display:flex}
+.card{width:min(430px,92vw);max-height:82vh;overflow-y:auto;
+  background:var(--paper);border-radius:22px;padding:36px 26px 30px;position:relative;
+  box-shadow:0 24px 60px rgba(0,0,0,.4);
+  animation:pop .45s cubic-bezier(.34,1.56,.64,1);border:2.5px solid #ecd9b8}
+@keyframes pop{0%{transform:scale(.55) rotate(-8deg);opacity:0}100%{transform:scale(1);opacity:1}}
+.card-x{position:absolute;top:12px;right:14px;width:32px;height:32px;border-radius:50%;
+  border:none;background:#f3e6cd;color:#8a6f5c;font-size:16px;cursor:pointer}
+.card-date{font-size:12px;letter-spacing:.3em;color:#b08d5f;text-align:center}
+.card-title{margin-top:10px;text-align:center;font-size:21px;font-weight:700;color:var(--red-deep);letter-spacing:.1em}
+.card-divider{margin:16px auto;width:80px;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.card-body{font-size:15px;line-height:2.1;color:#5c4636;white-space:pre-wrap;text-align:center}
+.card-code{margin-top:18px;background:#fdf3dd;border:2px dashed var(--gold);border-radius:14px;
+  padding:14px 16px;text-align:center;font-size:14px;color:#8a5a20;line-height:2}
+.card-hidden{position:absolute;bottom:8px;right:14px;font-size:22px;opacity:.15;user-select:none}
+.card-paw{font-size:13px;text-align:center;margin-top:20px;color:#c9a06a;letter-spacing:.3em}
+
+/* ═══ 尾声 ═══ */
+footer{position:relative;z-index:2;text-align:center;padding:26px 20px 60px;
+  color:#fff0d6;font-size:12px;letter-spacing:.25em;line-height:2.2;text-shadow:0 2px 6px rgba(0,0,0,.3)}
+footer .admin-trigger{cursor:default;user-select:none;opacity:.55}
+
+/* ═══ 管理面板 ═══ */
+.admin{position:fixed;inset:0;z-index:80;display:none;background:#f7efdf;padding:18px;overflow-y:auto}
+.admin.show{display:block}
+.admin-box{max-width:640px;margin:0 auto;background:#fffdf6;border-radius:18px;
+  border:2.5px solid #d9b98c;padding:24px 20px;box-shadow:0 16px 40px rgba(0,0,0,.18)}
+.admin h2{font-size:18px;color:var(--red-deep);letter-spacing:.2em;text-align:center;margin-bottom:6px}
+.admin .admin-sub{font-size:12px;color:#a5876a;text-align:center;margin-bottom:18px;line-height:1.8}
+.admin .f{margin-bottom:16px}
+.admin label{display:block;font-size:12px;color:#8a6f5c;margin-bottom:5px;letter-spacing:.1em}
+.admin input,.admin textarea{width:100%;border:1.5px solid #d9c5a0;border-radius:10px;
+  padding:9px 12px;font-size:14px;font-family:inherit;background:#fffdf6;color:var(--ink)}
+.admin textarea{min-height:110px;line-height:1.8;resize:vertical}
+.admin .row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:18px}
+.admin button{border:none;border-radius:12px;padding:11px 20px;font-size:14px;cursor:pointer;
+  font-family:inherit;letter-spacing:.1em}
+.ab-save{background:var(--green);color:#fff}
+.ab-export{background:var(--red);color:#fff}
+.ab-preview{background:var(--gold);color:#fff}
+.ab-reset{background:#e8d9bd;color:#6b533a}
+.ab-close{background:#c9bda8;color:#fff}
+.admin .saved{display:none;text-align:center;color:var(--green);font-size:13px;margin-top:10px}
+.admin .saved.show{display:block}
+.admin details{margin-bottom:14px;border:1.5px solid #e3d3ae;border-radius:12px;background:#fff}
+.admin summary{cursor:pointer;padding:12px 14px;font-size:14px;font-weight:600;color:var(--red-deep);letter-spacing:.08em}
+.admin details .f{padding:0 14px 14px;margin-bottom:0}
+
+@media (max-width:430px){
+  .grid{grid-template-columns:repeat(2,1fr);gap:14px}
+  .box-top{height:104px}
+}
+</style>
+</head>
+<body>
+<canvas id="snow"></canvas>
+<div class="lights" id="lights"></div>
+
+<header>
+  <span class="badge">🎄 CHRISTMAS · 2026 🎄</span>
+  <h1>给<span class="hb">🎁</span>姚悦的圣诞盲盒</h1>
+  <div class="sub">一天拆一个 · 拆到圣诞那天</div>
+  <div class="count" id="countdown">距离开拆还有 <b>–</b> 天</div>
+</header>
+
+<div class="garland">🔔 ❄ 🎄 ❄ 🔔</div>
+
+<div class="howto">
+  <p>每个盒子在属于它的那天才能拆开。<br>拆开后按卡片里的线索行动——<br>圣诞那天之前，一共七个盒子。</p>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<footer>
+  <div>🔔 ❄ 🎄 ❄ 🔔</div>
+  <div>MERRY CHRISTMAS · 拆完最后一个，圣诞就到了</div>
+  <div class="admin-trigger" id="adminTrigger">· TO YY ·</div>
+</footer>
+
+<!-- 卡片弹层 -->
+<div class="overlay" id="overlay">
+  <div class="card">
+    <button class="card-x" id="cardX">✕</button>
+    <div class="card-date" id="cardDate"></div>
+    <div class="card-title" id="cardTitle"></div>
+    <div class="card-divider"></div>
+    <div class="card-body" id="cardBody"></div>
+    <div class="card-code" id="cardCode" hidden></div>
+    <div class="card-hidden" id="cardHidden"></div>
+    <div class="card-paw">🐾 TO YY 🐾</div>
+  </div>
+</div>
+
+<!-- 密码层 -->
+<div class="overlay" id="pwOverlay">
+  <div class="card" style="max-width:320px">
+    <button class="card-x" id="pwX">✕</button>
+    <div class="card-title" style="font-size:17px">管理面板</div>
+    <div class="card-divider"></div>
+    <div class="card-body">请输入管理密码</div>
+    <input id="pwInput" type="password" style="width:100%;margin-top:14px;border:1.5px solid #d9c5a0;border-radius:10px;padding:10px 12px;font-size:15px;text-align:center;letter-spacing:.3em" autofocus>
+    <div style="display:flex;justify-content:center;margin-top:14px">
+      <button id="pwGo" style="border:none;background:var(--green);color:#fff;border-radius:10px;padding:10px 26px;font-size:14px;cursor:pointer">进 入</button>
+    </div>
+  </div>
+</div>
+
+<!-- 管理面板 -->
+<div class="admin" id="admin">
+  <div class="admin-box">
+    <h2>🎄 圣诞盲盒 · 管理面板</h2>
+    <div class="admin-sub">
+      在这里填写每天的内容和核销码 → 点「生成分享版」下载新的 index.html →
+      上传到 GitHub Pages，她看到的就是写好的版本。<br>
+      （手机上也能操作，填完记得生成）
+    </div>
+    <div id="adminFields"></div>
+    <div class="row">
+      <button class="ab-save" id="abSave">💾 保存到本机</button>
+      <button class="ab-export" id="abExport">📦 生成分享版</button>
+      <button class="ab-preview" id="abPreview">👀 预览模式</button>
+      <button class="ab-reset" id="abReset">↺ 恢复默认</button>
+      <button class="ab-close" id="abClose">关闭</button>
+    </div>
+    <div class="saved" id="abSaved">✓ 已保存（只存在这台设备）</div>
+    <div class="admin-sub" style="margin-top:16px">
+      「预览模式」= 临时解锁全部盒子给你自己检查，只对当前页面生效，<br>
+      刷新即恢复。分享前记得用「生成分享版」。
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═════════════════════════════════════════════════
+   圣诞盲盒 · 配置区
+
+   body   : 拆开后卡片正文（在面板里直接回车换行）
+   code   : 底部虚线框（店铺线索 / 暗号 / 核销码），留空 "" 不显示
+   hidden : 右下角淡淡的隐藏字（七个字连成一句话）
+   在管理面板里改的内容会覆盖这里的默认值。
+   ═════════════════════════════════════════════════ */
+window.BOXES_DEFAULT = [
+/*__BOXES_START__*/
+  { date:"2026-12-19", title:"第一天 · 第一格", body:"", code:"", hidden:"今" },
+  { date:"2026-12-20", title:"第二天 · 第二格", body:"", code:"", hidden:"晚" },
+  { date:"2026-12-21", title:"第三天 · 第三格", body:"", code:"", hidden:"一" },
+  { date:"2026-12-22", title:"第四天 · 第四格", body:"", code:"", hidden:"起" },
+  { date:"2026-12-23", title:"第五天 · 第五格", body:"", code:"", hidden:"看" },
+  { date:"2026-12-24", title:"第六天 · 第六格", body:"", code:"", hidden:"月" },
+  { date:"2026-12-25", title:"最后一天 · 圣诞快乐", body:"", code:"", hidden:"亮" }
+/*__BOXES_END__*/
+];
+window.ADMIN_PASS = "1219";   /* 管理密码，改成你自己的 */
+
+/* ═══ 以下不用动 ═══ */
+var DAY=86400000;
+var OPEN_DAY=new Date(2026,11,19);
+var PREVIEW=false;
+function today0(){var t=new Date();t.setHours(0,0,0,0);return t;}
+function loadBoxes(){
+  try{
+    var s=localStorage.getItem("xmas_boxes");
+    if(s){var arr=JSON.parse(s); if(Array.isArray(arr)&&arr.length===7) return arr;}
+  }catch(e){}
+  return JSON.parse(JSON.stringify(window.BOXES_DEFAULT));
+}
+var BOXES=loadBoxes();
+
+/* 彩灯 */
+(function(){
+  var l=document.getElementById("lights"),h="";
+  for(var i=0;i<24;i++) h+='<span class="bulb b'+(i%6+1)+'"></span>';
+  l.innerHTML=h;
+})();
+
+/* 倒计时 */
+(function(){
+  var cd=document.getElementById("countdown");
+  var diff=Math.ceil((OPEN_DAY-today0())/DAY);
+  if(diff>0) cd.innerHTML="距离开拆还有 <b>"+diff+"</b> 天";
+  else if(today0()<=new Date(2026,11,25)) cd.innerHTML="圣诞周 · <b>今天可以拆了</b>";
+  else cd.innerHTML="这一轮圣诞结束了 · 但月亮每天都升起来";
+})();
+
+/* 格子（不剧透：只显示日期 + 第几格） */
+var grid=document.getElementById("grid");
+var ROMAN=["I","II","III","IV","V","VI","VII"];
+function openedSet(){try{return JSON.parse(localStorage.getItem("xmas_opened")||"[]");}catch(e){return[];}}
+function markOpened(i){var s=openedSet();if(s.indexOf(i)<0){s.push(i);try{localStorage.setItem("xmas_opened",JSON.stringify(s));}catch(e){}}}
+
+function renderGrid(){
+  grid.innerHTML="";
+  var t=today0();
+  BOXES.forEach(function(b,i){
+    var d=new Date(b.date+"T00:00:00");
+    var locked=!PREVIEW && t<d;
+    var isToday=t.getTime()===d.getTime();
+    var cell=document.createElement("div");
+    cell.className="cell"+(locked?" locked":"")+(isToday?" today":"");
+    cell.innerHTML=
+      '<div class="box">'+
+        (isToday?'<span class="today-pin">今天</span>':'')+
+        (!locked?'<span class="opened-mark" style="display:none">已拆 ✓</span>':'')+
+        '<div class="box-top">'+
+          '<div class="snowcap"></div>'+
+          '<div class="gift">'+
+            '<div class="g-ribbon-v"></div><div class="g-body"></div>'+
+            '<div class="g-lid"></div>'+
+            '<div class="g-bow"><i></i><i></i><b></b></div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="box-info">'+
+          '<div class="day-tag">'+b.date.slice(5).replace("-"," / ")+'</div>'+
+          '<div class="box-title">'+ROMAN[i]+' 号盲盒</div>'+
+        '</div>'+
+      '</div>';
+    cell.addEventListener("click",function(){
+      if(locked){shake(cell);return;}
+      if(!BOXES[i].body){shake(cell);toastMsg("这个盒子还没装东西哦");return;}
+      openCard(i);
+      if(openedSet().indexOf(i)<0){markOpened(i);setOpened(i);}
+    });
+    grid.appendChild(cell);
+  });
+  openedSet().forEach(function(i){setOpened(i);});
+}
+function setOpened(i){var m=grid.children[i]&&grid.children[i].querySelector(".opened-mark");if(m)m.style.display="";}
+renderGrid();
+
+/* 轻提示 */
+function toastMsg(t){
+  var d=document.createElement("div");
+  d.textContent=t;
+  d.style.cssText="position:fixed;left:50%;bottom:60px;transform:translateX(-50%);background:rgba(60,30,20,.85);color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;z-index:99;letter-spacing:.1em";
+  document.body.appendChild(d);
+  setTimeout(function(){d.remove();},1600);
+}
+
+/* 弹卡片 */
+var overlay=document.getElementById("overlay");
+function openCard(i){
+  var b=BOXES[i];
+  document.getElementById("cardDate").textContent=b.date.replace(/-/g," / ");
+  document.getElementById("cardTitle").textContent=b.title;
+  document.getElementById("cardBody").textContent=b.body;
+  var ce=document.getElementById("cardCode");
+  if(b.code){ce.hidden=false;ce.innerHTML=String(b.code).replace(/\n/g,"<br>");}else ce.hidden=true;
+  document.getElementById("cardHidden").textContent=b.hidden||"";
+  overlay.classList.add("show");
+}
+document.getElementById("cardX").addEventListener("click",function(){overlay.classList.remove("show")});
+overlay.addEventListener("click",function(e){if(e.target===overlay)overlay.classList.remove("show")});
+
+function shake(el){
+  el.style.animation="none";void el.offsetWidth;
+  el.style.animation="shake .4s";
+}
+var st=document.createElement("style");
+st.textContent="@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}";
+document.head.appendChild(st);
+
+/* ═══ 管理面板 ═══ */
+var admin=document.getElementById("admin");
+var pwOverlay=document.getElementById("pwOverlay");
+var triggers=0;
+document.getElementById("adminTrigger").addEventListener("click",function(){
+  triggers++;
+  if(triggers>=3){triggers=0;pwOverlay.classList.add("show");document.getElementById("pwInput").value="";}
+});
+document.getElementById("pwX").addEventListener("click",function(){pwOverlay.classList.remove("show")});
+document.getElementById("pwGo").addEventListener("click",tryPw);
+document.getElementById("pwInput").addEventListener("keydown",function(e){if(e.key==="Enter")tryPw()});
+function tryPw(){
+  if(document.getElementById("pwInput").value===String(window.ADMIN_PASS)){
+    pwOverlay.classList.remove("show");openAdmin();
+  }else{ toastMsg("密码不对哦"); }
+}
+function openAdmin(){
+  var f=document.getElementById("adminFields");
+  f.innerHTML="";
+  BOXES.forEach(function(b,i){
+    var det=document.createElement("details");
+    det.open=(i===0);
+    det.innerHTML=
+      '<summary>'+b.date+' · '+ROMAN[i]+' 号盲盒</summary>'+
+      '<div class="f">'+
+        '<label>卡片正文</label>'+
+        '<textarea id="f_body_'+i+'"></textarea>'+
+        '<label style="margin-top:10px">底部框：店铺线索 / 暗号 / 核销码（留空则不显示）</label>'+
+        '<textarea id="f_code_'+i+'" style="min-height:70px"></textarea>'+
+      '</div>';
+    f.appendChild(det);
+    det.querySelector("#f_body_"+i).value=b.body||"";
+    det.querySelector("#f_code_"+i).value=b.code||"";
+  });
+  admin.classList.add("show");
+}
+document.getElementById("abClose").addEventListener("click",function(){admin.classList.remove("show");PREVIEW=false;renderGrid();});
+document.getElementById("abSave").addEventListener("click",function(){
+  collect();try{localStorage.setItem("xmas_boxes",JSON.stringify(BOXES));}catch(e){}
+  document.getElementById("abSaved").classList.add("show");
+  setTimeout(function(){document.getElementById("abSaved").classList.remove("show");},2000);
+});
+document.getElementById("abReset").addEventListener("click",function(){
+  try{localStorage.removeItem("xmas_boxes");}catch(e){}
+  BOXES=JSON.parse(JSON.stringify(window.BOXES_DEFAULT));
+  openAdmin();renderGrid();toastMsg("已恢复默认");
+});
+document.getElementById("abPreview").addEventListener("click",function(){
+  collect();PREVIEW=!PREVIEW;renderGrid();
+  toastMsg(PREVIEW?"预览模式：全部已解锁":"已退出预览");
+});
+function collect(){
+  BOXES.forEach(function(b,i){
+    b.body=document.getElementById("f_body_"+i).value;
+    b.code=document.getElementById("f_code_"+i).value;
+  });
+}
+/* 生成分享版：把当前内容写回 index.html 的 BOXES 区块并下载 */
+document.getElementById("abExport").addEventListener("click",async function(){
+  collect();
+  var json=JSON.stringify(BOXES,null,2);
+  var src=null;
+  try{
+    var r=await fetch(location.href,{cache:"no-store"});
+    if(r.ok) src=await r.text();
+  }catch(e){}
+  if(!src){ toastMsg("本地 file:// 打开无法自动生成，请先部署到网上，或直接改文件"); return; }
+  var s=src.indexOf("/*__BOXES_START__*/"),e2=src.indexOf("/*__BOXES_END__*/");
+  if(s<0||e2<0){ toastMsg("文件结构不对，缺少标记"); return; }
+  var out=src.slice(0,s)+"/*__BOXES_START__*/\n"+json+"\n"+src.slice(e2);
+  var blob=new Blob([out],{type:"text/html;charset=utf-8"});
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);a.download="index.html";
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(a.href);},1200);
+  toastMsg("已生成 index.html，上传到 GitHub 即可");
+});
+
+/* 雪花 */
+(function(){
+  var cv=document.getElementById("snow"),ctx=cv.getContext("2d"),fl=[],W,H;
+  function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
+  rs();addEventListener("resize",rs);
+  for(var i=0;i<50;i++)fl.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:.8+Math.random()*2.6,s:.3+Math.random()*.9,w:Math.random()*Math.PI*2});
+  (function tick(){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle="rgba(255,255,255,.85)";
+    fl.forEach(function(f){
+      f.y+=f.s;f.x+=Math.sin(f.w+=.01)*.4;
+      if(f.y>H+6){f.y=-6;f.x=Math.random()*W;}
+      ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,7);ctx.fill();
+    });
+    requestAnimationFrame(tick);
+  })();
+})();
+</script>
+</body>
+</html>
