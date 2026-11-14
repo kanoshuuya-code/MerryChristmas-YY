@@ -16,22 +16,21 @@ body{
   background:linear-gradient(180deg,#8c2b26 0%,#b03a34 26%,#d9694f 44%,#f2c88a 72%,#faeccd 100%);
   color:var(--ink); min-height:100vh; overflow-x:hidden;
 }
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(1100px 520px at 50% -8%,rgba(255,226,150,.28),transparent 62%),
+    radial-gradient(900px 480px at 88% 108%,rgba(70,20,50,.38),transparent 60%),
+    radial-gradient(900px 480px at 12% 108%,rgba(70,20,50,.38),transparent 60%)}
+.lights,header,.garland,.howto,.grid,footer{position:relative;z-index:2}
 #snow{position:fixed;inset:0;pointer-events:none;z-index:1}
 
 /* ═══ 圣诞彩灯 ═══ */
-.lights{
-  position:fixed;top:0;left:0;right:0;height:34px;z-index:5;pointer-events:none;
-  display:flex;justify-content:space-around;align-items:flex-start;padding:0 6px;
-}
-.bulb{
-  width:12px;height:12px;border-radius:50%;margin-top:10px;position:relative;
-  animation:blink 1.8s ease-in-out infinite;
-  box-shadow:0 0 10px 3px currentColor;
-}
+.lights{position:fixed;top:0;left:0;right:0;height:34px;z-index:5;pointer-events:none;
+  display:flex;justify-content:space-around;align-items:flex-start;padding:0 6px}
+.bulb{width:12px;height:12px;border-radius:50%;margin-top:10px;position:relative;
+  animation:blink 1.8s ease-in-out infinite;box-shadow:0 0 10px 3px currentColor}
 .bulb::before{content:"";position:absolute;top:-7px;left:50%;transform:translateX(-50%);
   width:4px;height:8px;background:#4a6b3a;border-radius:2px}
-.bulb::after{content:"";position:absolute;top:8px;left:4px;width:2px;height:10px;
-  background:rgba(255,255,255,.5)}
+.bulb::after{content:"";position:absolute;top:8px;left:4px;width:2px;height:10px;background:rgba(255,255,255,.5)}
 .b1{color:#ffd23e;background:#ffd23e}.b2{color:#ff6b6b;background:#ff6b6b;animation-delay:.3s}
 .b3{color:#6bd66b;background:#6bd66b;animation-delay:.6s}
 .b4{color:#5db9ff;background:#5db9ff;animation-delay:.9s}
@@ -41,45 +40,164 @@ body{
 
 /* ═══ 头部 ═══ */
 header{position:relative;z-index:2;text-align:center;padding:60px 20px 20px}
-.badge{
-  display:inline-block;background:var(--green);color:var(--cream);
+.badge{display:inline-block;background:var(--green);color:var(--cream);
   font-size:12px;letter-spacing:.35em;padding:6px 16px 6px 20px;border-radius:99px;
-  box-shadow:0 4px 14px rgba(0,60,30,.4);
-}
-h1{margin-top:16px;font-size:clamp(26px,7vw,40px);letter-spacing:.12em;color:#fff;
-  font-weight:700;text-shadow:0 3px 12px rgba(120,30,20,.5)}
+  box-shadow:0 4px 14px rgba(0,60,30,.4)}
+h1{margin-top:16px;font-size:clamp(26px,7vw,40px);letter-spacing:.12em;font-weight:700;
+  background:linear-gradient(180deg,#ffffff 20%,#ffeeb8 55%,#f2c46a 90%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 3px 10px rgba(120,30,20,.55))}
 h1 .hb{display:inline-block;animation:hb 1.6s ease-in-out infinite}
 @keyframes hb{0%,100%{transform:scale(1) rotate(-4deg)}50%{transform:scale(1.18) rotate(8deg)}}
 .sub{margin-top:10px;font-size:14px;color:#ffe9c4;letter-spacing:.22em}
-.count{margin-top:14px;font-size:13px;color:#fff3d9;letter-spacing:.15em}
+.count{margin-top:16px;display:inline-block;font-size:13px;color:#fff3d9;letter-spacing:.15em;
+  background:rgba(255,253,246,.14);border:1.5px solid rgba(255,232,180,.45);
+  padding:9px 22px;border-radius:99px;backdrop-filter:blur(4px)}
 .count b{font-size:20px;color:#ffd23e;padding:0 3px}
 
-/* 花环分隔 */
+/* 花环 */
 .garland{position:relative;z-index:2;text-align:center;font-size:22px;letter-spacing:.6em;
   margin-top:8px;text-shadow:0 2px 8px rgba(0,0,0,.25)}
 
 /* ═══ 提示条 ═══ */
 .howto{position:relative;z-index:2;max-width:560px;margin:16px auto 0;padding:0 22px}
-.howto p{
-  background:rgba(255,253,246,.92);border:2px solid #d9b98c;border-radius:16px;
+.howto p{background:rgba(255,253,246,.92);border:2px solid #d9b98c;border-radius:16px;
   padding:14px 18px;font-size:13px;line-height:1.9;color:#7a5c44;text-align:center;
-  box-shadow:0 8px 24px rgba(120,50,20,.18);
-}
+  box-shadow:0 8px 24px rgba(120,50,20,.18)}
 
-/* ═══ 盲盒格 ═══ */
-.grid{
-  position:relative;z-index:2;max-width:620px;margin:28px auto 10px;padding:0 18px 20px;
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:20px;
-}
-.cell{perspective:900px;cursor:pointer;text-align:center}
-.box{
-  position:relative;border-radius:18px;background:var(--paper);
+/* ═══ 大圣诞树 + 挂饰盲盒 ═══ */
+.grid{position:relative;z-index:2;max-width:640px;margin:18px auto 6px;padding:0 14px 40px;height:760px}
+.bigtree{position:absolute;left:50%;top:36px;transform:translateX(-50%);
+  width:min(560px,96%);height:660px;pointer-events:none;z-index:1}
+.tree-star{position:absolute;top:-10px;left:50%;transform:translateX(-50%);
+  font-size:52px;z-index:6;filter:drop-shadow(0 0 22px rgba(255,210,62,1));
+  animation:treeStar 3s ease-in-out infinite;pointer-events:none}
+@keyframes treeStar{50%{transform:translateX(-50%) scale(1.18) rotate(10deg)}}
+/* 四层锯齿树冠 */
+.tier{position:absolute;left:50%;transform:translateX(-50%);
+  clip-path:polygon(50% 0%,100% 74%,87% 100%,75% 82%,63% 100%,50% 80%,37% 100%,25% 82%,13% 100%,0 74%)}
+.tier.t1{top:2%;width:52%;height:24%;background:
+  radial-gradient(ellipse at 50% 0,rgba(255,255,255,.22),transparent 62%),
+  linear-gradient(90deg,rgba(6,46,26,.4),transparent 16% 84%,rgba(6,46,26,.4)),
+  linear-gradient(180deg,#4cae78,#2e7a52)}
+.tier.t2{top:18%;width:72%;height:26%;background:
+  radial-gradient(ellipse at 50% 0,rgba(255,255,255,.22),transparent 62%),
+  linear-gradient(90deg,rgba(6,46,26,.4),transparent 14% 86%,rgba(6,46,26,.4)),
+  linear-gradient(180deg,#41a068,#286e49)}
+.tier.t3{top:36%;width:88%;height:28%;background:
+  radial-gradient(ellipse at 50% 0,rgba(255,255,255,.22),transparent 62%),
+  linear-gradient(90deg,rgba(6,46,26,.42),transparent 12% 88%,rgba(6,46,26,.42)),
+  linear-gradient(180deg,#36905c,#225e3f)}
+.tier.t4{top:56%;width:100%;height:32%;background:
+  radial-gradient(ellipse at 50% 0,rgba(255,255,255,.22),transparent 62%),
+  linear-gradient(90deg,rgba(6,46,26,.45),transparent 10% 90%,rgba(6,46,26,.45)),
+  linear-gradient(180deg,#2b7350,#1c5036)}
+.tier::after{content:"";position:absolute;top:5%;left:10%;right:10%;height:14px;border-radius:50%;
+  background:radial-gradient(ellipse at 50% 0,rgba(255,255,255,.6),transparent 70%)}
+/* 层缘积雪裙边 */
+.sc{position:absolute;left:50%;transform:translateX(-50%);height:16px;z-index:2;
+  background:radial-gradient(circle at 10px 0,rgba(255,255,255,.96) 9px,transparent 10px);
+  background-size:20px 16px;background-repeat:repeat-x;
+  filter:drop-shadow(0 3px 4px rgba(10,50,30,.3))}
+.sc.s1{top:26%;width:50%}
+.sc.s2{top:44%;width:69%}
+.sc.s3{top:64%;width:85%}
+.sc.s4{top:88%;width:97%}
+/* 浆果与金球 */
+.berry,.gball{position:absolute;border-radius:50%;z-index:2;pointer-events:none}
+.berry{width:8px;height:8px;background:radial-gradient(circle at 32% 28%,#ff9d9d,#c62828);
+  box-shadow:0 1px 3px rgba(80,10,10,.5)}
+.berry::after{content:"";position:absolute;top:1px;left:2px;width:2px;height:2px;
+  border-radius:50%;background:rgba(255,255,255,.85)}
+.gball{width:10px;height:10px;background:radial-gradient(circle at 32% 28%,#fff3cf,#d9a441);
+  box-shadow:0 0 6px rgba(255,214,110,.75)}
+/* 两侧氛围装饰 */
+.side-deco{position:absolute;z-index:3;pointer-events:none;
+  filter:drop-shadow(0 4px 10px rgba(60,20,10,.35));
+  animation:decoFloat 5.5s ease-in-out infinite}
+@keyframes decoFloat{50%{transform:translateY(-9px) rotate(3deg)}}
+.sd-snowman{left:2.5%;bottom:150px;font-size:52px}
+.sd-deer{right:3%;top:40%;font-size:48px;animation-delay:1.6s}
+.sd-spark1{left:6%;top:30%;font-size:22px;animation-delay:.8s}
+.sd-spark2{right:7%;bottom:190px;font-size:22px;animation-delay:2.4s}
+/* 金色装饰彩带 */
+.gar{position:absolute;border-bottom:3px dotted rgba(255,214,110,.85);
+  filter:drop-shadow(0 2px 3px rgba(255,180,60,.4));z-index:2}
+.gar.g1{top:22%;left:16%;right:16%;height:30px;border-radius:0 0 50% 50%/0 0 100% 100%}
+.gar.g2{top:46%;left:7%;right:7%;height:40px;border-radius:0 0 50% 50%/0 0 100% 100%}
+.gar.g3{top:68%;left:-2%;right:-2%;height:48px;border-radius:0 0 50% 50%/0 0 100% 100%}
+/* 树干 + 雪地 */
+.tree-trunk{position:absolute;top:86%;left:50%;transform:translateX(-50%);
+  width:11%;height:13%;border-radius:6px;
+  background:linear-gradient(180deg,#8a5a33,#5e3d20);
+  box-shadow:inset 0 -6px 8px rgba(0,0,0,.35)}
+.snow-ground{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);
+  width:130%;height:90px;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 100%,rgba(255,255,255,.95) 30%,rgba(255,255,255,.45) 62%,transparent 78%)}
+/* 树上的小彩灯（JS 撒在树冠上，随日子点亮） */
+.pl-bulb{position:absolute;width:9px;height:9px;border-radius:50%;
+  background:#5c4f3f;z-index:2;box-shadow:inset 0 -2px 3px rgba(0,0,0,.35);
+  transition:background .6s,box-shadow .6s;pointer-events:none}
+.pl-bulb.lit{animation:bulbTwinkle 2.4s ease-in-out infinite}
+.pl-bulb.lit.c1{background:#ffd23e;box-shadow:0 0 10px 3px rgba(255,210,62,.85)}
+.pl-bulb.lit.c2{background:#ff6b6b;box-shadow:0 0 10px 3px rgba(255,107,107,.85)}
+.pl-bulb.lit.c3{background:#7de08a;box-shadow:0 0 10px 3px rgba(125,224,138,.85)}
+.pl-bulb.lit.c4{background:#7db9ff;box-shadow:0 0 10px 3px rgba(125,185,255,.85)}
+.pl-bulb.lit.c5{background:#ff9de2;box-shadow:0 0 10px 3px rgba(255,157,226,.85)}
+@keyframes bulbTwinkle{50%{opacity:.5}}
+/* 专属挂饰：迷你礼物 + 珍珠挂环 + 小狗/小鼠吊牌 */
+.cell{perspective:900px;cursor:pointer;text-align:center;position:absolute;z-index:5}
+.orn{width:19%;max-width:96px;min-width:64px}
+.orn::before{content:"";position:absolute;bottom:calc(100% - 6px);left:50%;transform:translateX(-50%);
+  width:2px;height:26px;z-index:1;
+  background:linear-gradient(180deg,rgba(255,226,150,.2),rgba(255,226,150,.9))}
+/* 挂线顶端的珍珠扣 */
+.orn::after{content:"";position:absolute;top:-4px;left:50%;transform:translateX(-50%);
+  width:9px;height:9px;border-radius:50%;z-index:2;
+  background:radial-gradient(circle at 35% 30%,#fff,#d9a441);
+  box-shadow:0 0 6px rgba(255,214,110,.8)}
+.cell.today .orn::after{background:radial-gradient(circle at 35% 30%,#fff,#ff6b6b);
+  box-shadow:0 0 10px 3px rgba(255,107,107,.9);animation:todayDot 1.6s ease-in-out infinite}
+@keyframes todayDot{50%{transform:translateX(-50%) scale(1.4)}}
+.orn .box{border-radius:14px;border-width:2px;
+  box-shadow:0 6px 16px rgba(60,20,10,.35),0 0 12px rgba(255,214,110,.25)}
+.orn .box-top{height:52px}
+.orn .gift{transform:scale(.82)}
+.orn .box-info{padding:6px 4px 8px}
+.orn .box-title{font-size:11px}
+.orn .day-tag{font-size:9px;letter-spacing:.15em}
+/* 专属吊牌：小狗 & 小鼠 轮流挂牌 */
+.orn .tag{position:absolute;top:-14px;left:50%;transform:translateX(-50%) rotate(-8deg);
+  font-size:13px;z-index:3;filter:drop-shadow(0 1px 2px rgba(60,20,10,.4));
+  animation:tagSway 3.6s ease-in-out infinite}
+.orn .tag.r{transform:translateX(-50%) rotate(8deg)}
+@keyframes tagSway{50%{transform:translateX(-50%) rotate(4deg)}}
+.cell.today .box{border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(255,210,62,.55),0 10px 26px rgba(180,120,40,.35),0 0 22px rgba(255,210,62,.5);
+  animation:glow 2s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 0 6px rgba(255,210,62,.25),0 10px 26px rgba(180,120,40,.3),0 0 34px rgba(255,210,62,.65)}}
+/* 星光指引：点未解锁的盒子 → 星光飞向今天那格（大颗、拖尾、发光） */
+.star-g{position:absolute;z-index:8;font-size:26px;pointer-events:none;
+  text-shadow:0 0 10px #ffdf8e,0 0 24px rgba(255,200,80,.95),0 0 44px rgba(255,180,40,.7);
+  opacity:0;will-change:left,top;
+  transition:left 1.1s cubic-bezier(.45,.7,.25,1),top 1.1s cubic-bezier(.45,.7,.25,1);
+  animation:starFly 1.5s ease forwards}
+@keyframes starFly{0%{opacity:0;transform:scale(.4)}14%{opacity:1;transform:scale(1.35)}
+  60%{opacity:1;transform:scale(1.05) rotate(30deg)}100%{opacity:0;transform:scale(.5) rotate(70deg)}}
+/* 星光拖尾小尘 */
+.star-t{position:absolute;z-index:7;width:7px;height:7px;border-radius:50%;
+  background:radial-gradient(circle,#ffe9ad,rgba(255,190,60,.0) 70%);
+  pointer-events:none;animation:starTail 1s ease-out forwards}
+@keyframes starTail{0%{opacity:.95;transform:scale(1.2)}100%{opacity:0;transform:scale(.2) translateY(10px)}}
+.cell.guiding .box{animation:guideRing 1s ease-in-out 2}
+@keyframes guideRing{50%{box-shadow:0 0 0 4px rgba(255,210,62,.7),0 0 30px rgba(255,210,62,.8)}}
+.box{position:relative;border-radius:18px;background:var(--paper);
   border:2.5px solid #ecd9b8;overflow:hidden;
   box-shadow:0 10px 26px rgba(90,30,20,.28);
-  transition:transform .25s ease;
-}
-.cell:not(.locked) .box:hover{transform:translateY(-6px)}
-/* CSS 手绘礼盒：盖 + 身 + 竖丝带 + 蝴蝶结 + 雪盖 */
+  transition:transform .25s ease,box-shadow .25s ease}
+.cell:not(.locked) .box:hover{transform:translateY(-6px);
+  box-shadow:0 18px 40px rgba(90,30,20,.4),0 0 0 2px rgba(255,226,150,.4)}
+/* CSS 手绘礼盒 */
 .box-top{height:118px;position:relative;overflow:hidden;
   background:linear-gradient(160deg,#c9503f,#9c2f28)}
 .cell:nth-child(even) .box-top{background:linear-gradient(160deg,#3f7a5c,#27503d)}
@@ -91,11 +209,11 @@ h1 .hb{display:inline-block;animation:hb 1.6s ease-in-out infinite}
   background:var(--gold);box-shadow:0 3px 6px rgba(0,0,0,.25);z-index:3}
 .g-body{position:absolute;left:14%;right:14%;top:46%;bottom:12%;
   background:var(--gold);border-radius:0 0 8px 8px;opacity:.95}
-.g-ribbon-v{position:absolute;left:50%;top:0;bottom:0;width:9px;background:var(--cream);
-  transform:translateX(-50%);opacity:.92;z-index:2}
+.g-rib{position:absolute;top:0;bottom:0;width:9px;background:var(--cream);opacity:.92;z-index:2}
+.g-rib.l{left:calc(50% - 9px)}
+.g-rib.r{left:50%}
 .g-bow{position:absolute;left:50%;top:12%;transform:translateX(-50%);z-index:4}
-.g-bow i{display:inline-block;width:20px;height:13px;background:var(--cream);
-  border-radius:60%;margin:0 1px}
+.g-bow i{display:inline-block;width:20px;height:13px;background:var(--cream);border-radius:60%;margin:0 1px}
 .g-bow i:first-child{transform:rotate(-22deg)}
 .g-bow i:last-child{transform:rotate(22deg)}
 .g-bow b{position:absolute;left:50%;top:4px;transform:translateX(-50%);width:10px;height:10px;
@@ -115,18 +233,156 @@ h1 .hb{display:inline-block;animation:hb 1.6s ease-in-out infinite}
   box-shadow:0 0 0 3px rgba(255,210,62,.55),0 10px 26px rgba(180,120,40,.35);
   animation:glow 2s ease-in-out infinite}
 @keyframes glow{50%{box-shadow:0 0 0 6px rgba(255,210,62,.25),0 10px 26px rgba(180,120,40,.3)}}
-/* ═══ 冬至格（12.22）special ═══ */
+.today-pin{position:absolute;top:9px;right:9px;background:#ffd23e;color:#8c2b26;
+  font-size:10px;padding:3px 9px;border-radius:99px;letter-spacing:.15em;z-index:6;font-weight:700}
+.opened-mark{position:absolute;top:9px;left:9px;font-size:11px;color:#fff;
+  background:rgba(0,0,0,.3);padding:3px 9px;border-radius:99px;letter-spacing:.2em;z-index:6}
+/* 冬至格 */
 .cell.dongzhi .box-top{background:linear-gradient(160deg,#5a6f9c,#31415f)!important}
 .cell.dongzhi .gift .g-body{background:#e8ecf5;opacity:.9}
 .cell.dongzhi .gift .g-lid{background:#e8ecf5}
 .dz-pin{position:absolute;top:9px;left:9px;background:#e8ecf5;color:#31415f;
   font-size:10px;padding:3px 9px;border-radius:99px;letter-spacing:.15em;z-index:7;font-weight:700}
-.dz-note{margin:6px auto 0;max-width:560px;padding:0 22px;text-align:center;
-  font-size:12px;color:#eaf1ff;letter-spacing:.2em;text-shadow:0 2px 6px rgba(30,50,90,.4)}
-.today-pin{position:absolute;top:9px;right:9px;background:#ffd23e;color:#8c2b26;
-  font-size:10px;padding:3px 9px;border-radius:99px;letter-spacing:.15em;z-index:6;font-weight:700}
-.opened-mark{position:absolute;top:9px;left:9px;font-size:11px;color:#fff;
-  background:rgba(0,0,0,.3);padding:3px 9px;border-radius:99px;letter-spacing:.2em;z-index:6}
+/* 第七格 · 圣诞终章 */
+.cell.final .box{border-color:var(--gold)}
+.cell.final .box-top{background:linear-gradient(160deg,#e0aa3e,#a8761d)!important}
+.cell.final .gift .g-body{background:#fff6dc}
+.cell.final .gift .g-lid{background:#fff6dc}
+.cell.final .gift .g-rib{background:var(--red)}
+.cell.final .gift .g-bow i{background:var(--red)}
+.cell.final .gift .g-bow b{background:#ffd23e}
+.final-pin{position:absolute;top:9px;left:9px;background:#fff6dc;color:#8c6414;
+  font-size:10px;padding:3px 9px;border-radius:99px;letter-spacing:.15em;z-index:7;font-weight:700}
+
+/* ═══ 开盒动画（盒子内部：盖子飞走）═══ */
+.cell.opening .box{animation:burstShake .6s ease}
+.cell.opening .box-top .g-lid{animation:lidOff .65s cubic-bezier(.3,.6,.4,1) forwards}
+.cell.opening .box-top .g-bow{animation:bowOff .65s ease forwards}
+.cell.opening .box-top .g-rib.l{animation:ribTearL .6s cubic-bezier(.4,.3,.6,1) forwards}
+.cell.opening .box-top .g-rib.r{animation:ribTearR .6s cubic-bezier(.4,.3,.6,1) forwards}
+.cell.opening .box-top .g-body{animation:bodyDim .7s ease .15s forwards}
+.cell.opening .box-top{animation:flashUp .65s ease}
+@keyframes lidOff{45%{transform:translateY(-22px) rotate(-10deg);opacity:1}
+  100%{transform:translateY(-64px) rotate(-32deg);opacity:0}}
+@keyframes bowOff{45%{transform:translateX(-50%) translateY(-26px) scale(1.2);opacity:1}
+  100%{transform:translateX(-50%) translateY(-70px) scale(.7);opacity:0}}
+@keyframes ribTearL{30%{transform:translateX(-14px) rotate(-6deg);opacity:1}
+  100%{transform:translateX(-52px) translateY(10px) rotate(-24deg);opacity:0}}
+@keyframes ribTearR{30%{transform:translateX(14px) rotate(6deg);opacity:1}
+  100%{transform:translateX(52px) translateY(14px) rotate(24deg);opacity:0}}
+@keyframes bodyDim{to{transform:translateY(8px);opacity:.35}}
+@keyframes burstShake{0%{transform:scale(1)}18%{transform:scale(1.12) rotate(-3deg)}
+  40%{transform:scale(1.06) rotate(3deg)}62%{transform:scale(1.1) rotate(-2deg)}
+  84%{transform:scale(1.04) rotate(1deg)}100%{transform:scale(1)}}
+@keyframes flashUp{30%{filter:brightness(1.9) saturate(1.3)}100%{filter:none}}
+
+/* ═══ 全屏特效层（不被任何盒子裁剪）═══ */
+#fxLayer{position:fixed;inset:0;pointer-events:none;z-index:100;overflow:visible}
+.fx-anchor{position:absolute;pointer-events:none;overflow:visible}
+/* 光柱 */
+.fx-beam{position:absolute;left:50%;top:0;width:30px;height:200px;
+  transform:translateX(-50%) scaleY(.05);transform-origin:50% 100%;
+  background:linear-gradient(to top,rgba(255,240,190,.98),rgba(255,214,110,.5) 55%,transparent);
+  border-radius:15px;filter:blur(3px);
+  animation:beamUp .9s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes beamUp{0%{opacity:0;transform:translateX(-50%) scaleY(.05)}
+  25%{opacity:1}
+  100%{opacity:0;transform:translateX(-50%) scaleY(1.3)}}
+/* 旋转光芒 */
+.fx-rays{position:absolute;left:50%;top:0;width:320px;height:320px;
+  background:repeating-conic-gradient(rgba(255,215,110,.85) 0deg 8deg,rgba(255,215,110,0) 8deg 30deg);
+  border-radius:50%;filter:blur(2px);opacity:0;
+  transform:translate(-50%,-50%) scale(.12);
+  animation:raysOut 1.1s ease-out forwards}
+@keyframes raysOut{0%{opacity:0;transform:translate(-50%,-50%) scale(.12) rotate(0deg)}
+  25%{opacity:.95}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.8) rotate(50deg)}}
+/* 冲击环 */
+.fx-ring{position:absolute;left:50%;top:0;width:70px;height:70px;border-radius:50%;
+  border:3px solid rgba(255,215,110,.95);
+  box-shadow:0 0 18px rgba(255,210,62,.6),inset 0 0 12px rgba(255,210,62,.5);
+  transform:translate(-50%,-50%) scale(.25);
+  animation:ringOut 1s cubic-bezier(.2,.6,.35,1) forwards}
+.fx-ring.r2{animation-delay:.18s;opacity:0}
+.fx-ring.r3{animation-delay:.36s;opacity:0}
+@keyframes ringOut{0%{opacity:.95;transform:translate(-50%,-50%) scale(.25)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(3.5)}}
+/* 星星粒子 */
+.spark{position:absolute;left:50%;top:0;z-index:10;pointer-events:none;
+  font-size:16px;text-shadow:0 0 8px rgba(255,214,110,.95),0 0 16px rgba(255,180,60,.5);
+  animation:sparkFly 1s cubic-bezier(.2,.6,.4,1) forwards}
+.spark.ic{color:#e8f6ff;text-shadow:0 0 8px rgba(150,220,255,.95),0 0 16px rgba(110,190,255,.5)}
+.spark.sl{color:#f6faff;text-shadow:0 0 8px rgba(220,235,255,.95),0 0 16px rgba(180,205,240,.5)}
+@keyframes sparkFly{0%{transform:translate(0,0) scale(.3);opacity:1}
+  55%{opacity:1}
+  100%{transform:translate(var(--sx),var(--sy)) scale(1.3) rotate(220deg);opacity:0}}
+/* 金粉尘埃 */
+.dust{position:absolute;left:50%;top:10%;z-index:10;pointer-events:none;
+  width:5px;height:5px;border-radius:50%;
+  background:radial-gradient(circle,#fff3cf,#ffd23e);
+  box-shadow:0 0 6px rgba(255,210,62,.85);
+  animation:dustUp 1.2s ease-out forwards}
+.dust.sl{background:radial-gradient(circle,#ffffff,#b9ccf0);box-shadow:0 0 6px rgba(200,220,255,.85)}
+@keyframes dustUp{0%{transform:translate(0,0) scale(1);opacity:1}
+  100%{transform:translate(var(--sx),-100px) scale(.35);opacity:0}}
+
+/* —— 七格七色主题（作用于 fx-anchor）—— */
+/* II 萤火绿 */
+.fx-anchor.t-firefly .fx-beam,.fx-anchor.t-firefly .fx-rays{display:none}
+.fx-anchor.t-firefly .fx-ring{border-color:rgba(150,240,180,.9);
+  box-shadow:0 0 18px rgba(120,230,160,.55),inset 0 0 12px rgba(120,230,160,.4)}
+.p-firefly{position:absolute;left:50%;top:10%;width:7px;height:7px;border-radius:50%;z-index:10;
+  background:radial-gradient(circle,#e2ffe9,#6bd66b);box-shadow:0 0 10px rgba(120,235,160,.95);
+  animation:flyUp 1.8s ease-out forwards}
+@keyframes flyUp{0%{opacity:0;transform:translate(0,0) scale(.6)}18%{opacity:1}
+  60%{transform:translate(calc(var(--sx)*.55),calc(var(--sy)*.6)) scale(1)}
+  100%{transform:translate(var(--sx),var(--sy)) scale(.7);opacity:0}}
+/* III 冰雪蓝 */
+.fx-anchor.t-snow .fx-beam{background:linear-gradient(to top,rgba(240,251,255,.95),rgba(170,225,255,.45) 55%,transparent)}
+.fx-anchor.t-snow .fx-rays{background:repeating-conic-gradient(rgba(190,235,255,.8) 0deg 8deg,rgba(190,235,255,0) 8deg 30deg)}
+.fx-anchor.t-snow .fx-ring{border-color:rgba(190,235,255,.95);
+  box-shadow:0 0 18px rgba(160,225,255,.6),inset 0 0 12px rgba(160,225,255,.5)}
+/* IV 冬至暖橘 */
+.fx-anchor.t-ember .fx-rays{display:none}
+.fx-anchor.t-ember .fx-beam{width:64px;height:160px;border-radius:32px;filter:blur(7px);
+  background:linear-gradient(to top,rgba(255,190,110,.85),rgba(255,150,70,.35) 60%,transparent)}
+.fx-anchor.t-ember .fx-ring{border-color:rgba(255,180,110,.9);
+  box-shadow:0 0 20px rgba(255,170,90,.6),inset 0 0 14px rgba(255,170,90,.45)}
+.p-ember{position:absolute;left:50%;top:8%;width:5px;height:5px;border-radius:50%;z-index:10;
+  background:radial-gradient(circle,#ffe3b8,#ff9d3c);box-shadow:0 0 8px rgba(255,160,60,.9);
+  animation:dustUp 1.5s ease-out forwards}
+.p-tangyuan{position:absolute;left:50%;top:10%;z-index:10;pointer-events:none;
+  font-size:18px;animation:tyFloat 2s ease-out forwards}
+@keyframes tyFloat{0%{transform:translate(0,0) scale(.5) rotate(0deg);opacity:0}
+  15%{opacity:1;transform:translate(0,-10px) scale(1) rotate(10deg)}
+  50%{transform:translate(calc(var(--sx)*.5),-40px) scale(1.1) rotate(-5deg)}
+  100%{transform:translate(var(--sx),-80px) scale(.9) rotate(8deg);opacity:0}}
+.p-snowflake{position:absolute;left:50%;top:0;z-index:9;pointer-events:none;
+  font-size:12px;color:#d4e8ff;text-shadow:0 0 6px rgba(200,230,255,.8);
+  animation:sfDrift 2.2s ease-in-out forwards}
+@keyframes sfDrift{0%{transform:translate(0,0) rotate(0deg);opacity:0}
+  20%{opacity:1}100%{transform:translate(var(--sx),60px) rotate(180deg);opacity:0}}
+/* V 碎钻银雨 */
+.fx-anchor.t-glitter .fx-beam{display:none}
+.fx-anchor.t-glitter .fx-rays{background:repeating-conic-gradient(rgba(255,250,230,.75) 0deg 5deg,rgba(255,250,230,0) 5deg 24deg);filter:blur(.5px)}
+.fx-anchor.t-glitter .fx-ring{border-width:2px;border-color:rgba(255,250,230,.95);
+  box-shadow:0 0 16px rgba(255,245,210,.6)}
+.p-glit{position:absolute;top:-10%;z-index:10;width:6px;height:2.5px;border-radius:2px;
+  background:#fff6d8;box-shadow:0 0 6px rgba(255,240,180,.95);
+  animation:glitFall 1.3s linear forwards}
+@keyframes glitFall{0%{transform:translate(0,-14px) rotate(24deg);opacity:0}
+  18%{opacity:1}100%{transform:translate(var(--sx),140px) rotate(180deg);opacity:0}}
+/* VI 月光银 */
+.fx-anchor.t-moon .fx-beam{width:36px;height:220px;
+  background:linear-gradient(to top,rgba(250,252,255,.95),rgba(205,225,255,.45) 55%,transparent)}
+.fx-anchor.t-moon .fx-rays{background:repeating-conic-gradient(rgba(225,238,255,.8) 0deg 7deg,rgba(225,238,255,0) 7deg 30deg)}
+.fx-anchor.t-moon .fx-ring{border-color:rgba(228,240,255,.95);
+  box-shadow:0 0 20px rgba(210,230,255,.6),inset 0 0 14px rgba(210,230,255,.5)}
+/* VII 圣诞终章 · 彩虹金雨 */
+.fx-anchor.t-final .fx-beam{width:44px;height:240px;border-radius:18px;
+  background:linear-gradient(to top,#ff8f8f,#ffd23e 30%,#8be08b 55%,#8fc3ff 75%,#e3a6ff)}
+.fx-anchor.t-final .fx-rays{width:380px;height:380px;
+  background:repeating-conic-gradient(#ff8f8f 0deg 10deg,#ffd23e 10deg 20deg,#8be08b 20deg 30deg,#8fc3ff 30deg 40deg,#e3a6ff 40deg 50deg,transparent 50deg 60deg);opacity:0}
 
 /* ═══ 卡片弹层 ═══ */
 .overlay{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;
@@ -135,8 +391,15 @@ h1 .hb{display:inline-block;animation:hb 1.6s ease-in-out infinite}
 .card{width:min(430px,92vw);max-height:82vh;overflow-y:auto;
   background:var(--paper);border-radius:22px;padding:36px 26px 30px;position:relative;
   box-shadow:0 24px 60px rgba(0,0,0,.4);
-  animation:pop .45s cubic-bezier(.34,1.56,.64,1);border:2.5px solid #ecd9b8}
-@keyframes pop{0%{transform:scale(.55) rotate(-8deg);opacity:0}100%{transform:scale(1);opacity:1}}
+  animation:pop .6s cubic-bezier(.3,1.4,.5,1);border:2.5px solid #ecd9b8;
+  transform-style:preserve-3d}
+@keyframes pop{0%{transform:perspective(900px) rotateY(72deg) rotateX(10deg) scale(.6);opacity:0}
+  55%{transform:perspective(900px) rotateY(-10deg) scale(1.02);opacity:1}
+  100%{transform:perspective(900px) rotateY(0) scale(1);opacity:1}}
+.card::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.55) 50%,transparent 58%);
+  transform:translateX(-130%);animation:cardShine 1s ease .18s forwards}
+@keyframes cardShine{to{transform:translateX(130%)}}
 .card-x{position:absolute;top:12px;right:14px;width:32px;height:32px;border-radius:50%;
   border:none;background:#f3e6cd;color:#8a6f5c;font-size:16px;cursor:pointer}
 .card-date{font-size:12px;letter-spacing:.3em;color:#b08d5f;text-align:center}
@@ -148,6 +411,47 @@ h1 .hb{display:inline-block;animation:hb 1.6s ease-in-out infinite}
   padding:14px 16px;text-align:center;font-size:14px;color:#8a5a20;line-height:2}
 .card-hidden{position:absolute;bottom:8px;right:14px;font-size:22px;opacity:.15;user-select:none}
 .card-paw{font-size:13px;text-align:center;margin-top:20px;color:#c9a06a;letter-spacing:.3em}
+
+/* 卡片内视频 */
+.card-video{margin-top:16px;border-radius:12px;overflow:hidden;background:#1a1a2e;
+  box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.card-video video{width:100%;display:block;max-height:280px}
+.card-video-tip{margin-top:8px;font-size:11px;color:#a5876a;text-align:center;letter-spacing:.1em}
+
+/* ═══ 信纸弹层 ═══ */
+.letter-overlay{position:fixed;inset:0;z-index:60;display:none;overflow-y:auto;
+  background:rgba(40,20,10,.6);backdrop-filter:blur(5px);padding:26px 16px}
+.letter-overlay.show{display:block}
+.letter{max-width:520px;margin:0 auto;background:
+    repeating-linear-gradient(transparent,transparent 34px,rgba(190,150,90,.16) 35px),#fbf3df;
+  border-radius:8px;padding:46px 34px 90px;position:relative;
+  box-shadow:0 0 0 6px #fffdf6,0 0 0 8px #e3c98f,0 30px 70px rgba(0,0,0,.5);
+  font-family:"Kaiti SC","STKaiti","KaiTi","楷体","Noto Serif SC",serif;
+  color:#5a4030;animation:letterIn .7s ease both}
+@keyframes letterIn{0%{transform:translateY(30px);opacity:0}100%{transform:none;opacity:1}}
+.letter::before{content:"❄";position:absolute;top:16px;left:20px;font-size:20px;color:#c9a86a;opacity:.7}
+.letter::after{content:"✦";position:absolute;top:16px;right:20px;font-size:18px;color:#c9a86a;opacity:.7}
+.letter-date{text-align:center;font-size:13px;letter-spacing:.35em;color:#a3805c}
+.letter-title{text-align:center;font-size:24px;font-weight:700;letter-spacing:.3em;margin-top:14px;color:#8c2b26}
+.letter-divider{width:90px;height:2px;margin:20px auto;
+  background:linear-gradient(90deg,transparent,#c9a86a,transparent)}
+.letter-body{font-size:17px;line-height:35px;white-space:pre-wrap;text-align:center}
+.letter-sign{text-align:right;margin-top:34px;font-size:16px;color:#8c2b26;letter-spacing:.2em}
+.letter-reveal{margin-top:44px;text-align:center}
+.letter-reveal .rv-line{font-size:15px;letter-spacing:.2em;color:#a3805c;margin-bottom:16px}
+.letter-reveal .rv-chars{font-size:30px;letter-spacing:.55em;font-weight:700;color:#8c2b26;
+  text-shadow:0 2px 10px rgba(200,80,60,.25)}
+.letter-reveal .rv-chars span{display:inline-block;opacity:0;animation:rvIn .6s ease forwards}
+@keyframes rvIn{from{opacity:0;transform:translateY(12px) scale(.6)}to{opacity:1;transform:none}}
+.letter-x{position:fixed;top:18px;right:18px;z-index:70;width:36px;height:36px;border-radius:50%;
+  border:none;background:rgba(255,253,246,.9);color:#8a6f5c;font-size:16px;cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.letter-btn{display:block;margin:20px auto 0;border:none;cursor:pointer;
+  background:linear-gradient(135deg,#e0aa3e,#c98f22);color:#fff;
+  font-size:14px;letter-spacing:.2em;padding:11px 28px;border-radius:99px;
+  box-shadow:0 6px 16px rgba(180,130,30,.4);font-family:inherit;
+  animation:letterPulse 1.8s ease-in-out infinite}
+@keyframes letterPulse{50%{transform:scale(1.06)}}
 
 /* ═══ 尾声 ═══ */
 footer{position:relative;z-index:2;text-align:center;padding:26px 20px 60px;
@@ -180,19 +484,30 @@ footer .admin-trigger{cursor:default;user-select:none;opacity:.55}
 .admin summary{cursor:pointer;padding:12px 14px;font-size:14px;font-weight:600;color:var(--red-deep);letter-spacing:.08em}
 .admin details .f{padding:0 14px 14px;margin-bottom:0}
 
+/* ═══ 彩带 ═══ */
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:65}
+
 @media (max-width:430px){
-  .grid{grid-template-columns:repeat(2,1fr);gap:14px}
-  .box-top{height:104px}
+  .grid{height:640px}
+  .bigtree{top:30px;height:560px}
+  .tree-star{font-size:40px}
+  .orn{min-width:58px}
+  .orn .box-top{height:46px}
+  .orn .box-title{font-size:10px}
+  .orn .day-tag{font-size:8px}
+  .orn .tag{font-size:11px;top:-12px}
+  .side-deco{display:none}
 }
 </style>
 </head>
 <body>
 <canvas id="snow"></canvas>
+<div id="fxLayer"></div>
 <div class="lights" id="lights"></div>
 
 <header>
   <span class="badge">🎄 CHRISTMAS · 2026 🎄</span>
-  <h1>给<span class="hb">🎁</span>姚悦的圣诞盲盒</h1>
+  <h1>给姚悦的圣诞盲盒</h1>
   <div class="sub">一天拆一个 · 拆到圣诞那天</div>
   <div class="count" id="countdown">距离开拆还有 <b>–</b> 天</div>
 </header>
@@ -204,13 +519,12 @@ footer .admin-trigger{cursor:default;user-select:none;opacity:.55}
 </div>
 
 <div class="grid" id="grid"></div>
-<div class="dz-note">❄ 12 / 22 是冬至 · 那天的盒子是特别的一格 ❄</div>
 
 <footer>
   <div>🔔 ❄ 🎄 ❄ 🔔</div>
   <div>MERRY CHRISTMAS · 拆完最后一个，圣诞就到了</div>
-  <div style="margin-top:6px"><a href="https://github.com/kanoshuuya-code/MerryChristmas-YY" target="_blank" rel="noopener" style="color:#ffe9c4;text-decoration:underline;text-underline-offset:4px;opacity:.8">🧑‍💻 TO YY · GitHub</a></div>
-  <div class="admin-trigger" id="adminTrigger">· TO YY ·</div>
+  <div style="margin-top:6px"><a href="https://github.com/kanoshuuya-code/MerryChristmas-YY" target="_blank" rel="noopener" style="display:inline-block;color:#8c2b26;text-decoration:none;background:linear-gradient(135deg,#ffe9a8,#ffd23e);padding:8px 22px;border-radius:99px;font-size:13px;font-weight:700;letter-spacing:.2em;box-shadow:0 4px 14px rgba(255,210,62,.4)">🧑‍💻 TO YY · GitHub</a></div>
+  <div class="admin-trigger" id="adminTrigger" style="opacity:1;margin-top:14px;display:inline-block;color:#ffe9c4;background:rgba(255,253,246,.16);border:1.5px solid rgba(255,232,180,.55);padding:7px 22px;border-radius:99px;font-size:14px;letter-spacing:.3em;cursor:pointer">🐾 TO YY 🐾 <span style="opacity:.5;font-size:10px;letter-spacing:.05em">v4.3</span></div>
 </footer>
 
 <!-- 卡片弹层 -->
@@ -221,9 +535,29 @@ footer .admin-trigger{cursor:default;user-select:none;opacity:.55}
     <div class="card-title" id="cardTitle"></div>
     <div class="card-divider"></div>
     <div class="card-body" id="cardBody"></div>
+    <div class="card-video" id="cardVideo" hidden>
+      <video id="videoPlayer" controls playsinline preload="metadata"></video>
+    </div>
+    <div class="card-video-tip" id="cardVideoTip" hidden>🎬 点开看今天的视频</div>
     <div class="card-code" id="cardCode" hidden></div>
     <div class="card-hidden" id="cardHidden"></div>
     <div class="card-paw">🐾 TO YY 🐾</div>
+  </div>
+</div>
+
+<!-- 信纸弹层 -->
+<div class="letter-overlay" id="letterOverlay">
+  <button class="letter-x" id="letterX">✕</button>
+  <div class="letter">
+    <div class="letter-date" id="ltDate"></div>
+    <div class="letter-title" id="ltTitle"></div>
+    <div class="letter-divider"></div>
+    <div class="letter-body" id="ltBody"></div>
+    <div class="letter-sign" id="ltSign"></div>
+    <div class="letter-reveal">
+      <div class="rv-line">这七天，你拆开过的每个角落，都藏着一个字——</div>
+      <div class="rv-chars" id="ltChars"></div>
+    </div>
   </div>
 </div>
 
@@ -255,7 +589,9 @@ footer .admin-trigger{cursor:default;user-select:none;opacity:.55}
       <button class="ab-save" id="abSave">💾 保存到本机</button>
       <button class="ab-export" id="abExport">📦 生成分享版</button>
       <button class="ab-preview" id="abPreview">👀 预览模式</button>
+      <button class="ab-reset" id="abDev">🔓 开放模式</button>
       <button class="ab-reset" id="abReset">↺ 恢复默认</button>
+      <button class="ab-reset" id="abClearOpened">🧹 重置拆盒记录</button>
       <button class="ab-close" id="abClose">关闭</button>
     </div>
     <div class="saved" id="abSaved">✓ 已保存（只存在这台设备）</div>
@@ -266,27 +602,51 @@ footer .admin-trigger{cursor:default;user-select:none;opacity:.55}
   </div>
 </div>
 
+<canvas id="confetti"></canvas>
+
 <script>
 /* ═════════════════════════════════════════════════
    圣诞盲盒 · 配置区
-
-   body   : 拆开后卡片正文（在面板里直接回车换行）
+   body   : 拆开后卡片正文
    code   : 底部虚线框（店铺线索 / 暗号 / 核销码），留空 "" 不显示
    hidden : 右下角淡淡的隐藏字（七个字连成一句话）
-   在管理面板里改的内容会覆盖这里的默认值。
    ═════════════════════════════════════════════════ */
 window.BOXES_DEFAULT = [
 /*__BOXES_START__*/
-  { date:"2026-12-19", title:"第一天 · 第一格", body:"", code:"", hidden:"今" },
-  { date:"2026-12-20", title:"第二天 · 第二格", body:"", code:"", hidden:"晚" },
-  { date:"2026-12-21", title:"第三天 · 第三格", body:"", code:"", hidden:"一" },
-  { date:"2026-12-22", title:"第四天 · 第四格", body:"", code:"", hidden:"起" },
-  { date:"2026-12-23", title:"第五天 · 第五格", body:"", code:"", hidden:"看" },
-  { date:"2026-12-24", title:"第六天 · 第六格", body:"", code:"", hidden:"月" },
-  { date:"2026-12-25", title:"最后一天 · 圣诞快乐", body:"", code:"", hidden:"亮" }
+  { date:"2026-12-19", title:"第一天 · 第一格", body:"", code:"", hidden:"今", video:"" },
+  { date:"2026-12-20", title:"第二天 · 第二格", body:"", code:"", hidden:"晚", video:"" },
+  { date:"2026-12-21", title:"第三天 · 第三格", body:"", code:"", hidden:"一", video:"" },
+  { date:"2026-12-22", title:"第四天 · 第四格", body:"", code:"", hidden:"起", video:"" },
+  { date:"2026-12-23", title:"第五天 · 第五格", body:"", code:"", hidden:"看", video:"" },
+  { date:"2026-12-24", title:"第六天 · 第六格", body:"", code:"", hidden:"月", video:"" },
+  { date:"2026-12-25", title:"最后一天 · 圣诞快乐", body:"", code:"", hidden:"亮", video:"" }
 /*__BOXES_END__*/
 ];
-window.ADMIN_PASS = "1219";   /* 管理密码，改成你自己的 */
+window.ADMIN_PASS = "1019";
+
+/* ⚠️ 测试开关：true = 全部盒子随时可拆（你现在看效果用）
+   上线发给她之前，在管理面板里关掉，或把这行改成 false ！ */
+window.DEV_UNLOCK = true;
+/* 管理面板的「开放模式」开关会记住上次的选择 */
+try{
+  var dvPrev=localStorage.getItem("xmas_dev");
+  if(dvPrev==="1")window.DEV_UNLOCK=true;
+  else if(dvPrev==="0")window.DEV_UNLOCK=false;
+}catch(e){}
+
+/* 第七格拆完后「还有一封信」的信纸内容 */
+window.LETTER = /*__LETTER_START__*/{
+  title: "一封圣诞信",
+  date: "2026 · 12 · 25 · 圣诞",
+  body: "姚悦：\n\n圣诞快乐。\n\n这七个盒子，是我提前很多天就开始准备的——\n想让你从 19 号到 25 号，每天都有一个小小的、\n「有人惦记着你」的证据。\n\n从盛夏的比赛到现在，认识你这件事，\n大概是我今年最好的运气。\n\n昨晚的月亮是满的。\n今天，是我们一起看过那轮月亮之后的第 60 天。\n\n下一个满月，下一个节日，\n希望都有你在。\n\n圣诞快乐，姚悦。\n\n—— 庄烨",
+  reveal: "今晚一起看月亮",
+  sign: "庄烨"
+}/*__LETTER_END__*/;
+/* 本机改过的信会覆盖默认值 */
+try{
+  var _ls=localStorage.getItem("xmas_letter");
+  if(_ls){var _lo=JSON.parse(_ls);for(var _k in _lo)window.LETTER[_k]=_lo[_k];}
+}catch(e){}
 
 /* ═══ 以下不用动 ═══ */
 var DAY=86400000;
@@ -294,8 +654,7 @@ var OPEN_DAY=new Date(2026,11,19);
 var PREVIEW=false;
 function today0(){var t=new Date();t.setHours(0,0,0,0);return t;}
 function loadBoxes(){
-  try{
-    var s=localStorage.getItem("xmas_boxes");
+  try{var s=localStorage.getItem("xmas_boxes");
     if(s){var arr=JSON.parse(s); if(Array.isArray(arr)&&arr.length===7) return arr;}
   }catch(e){}
   return JSON.parse(JSON.stringify(window.BOXES_DEFAULT));
@@ -303,22 +662,19 @@ function loadBoxes(){
 var BOXES=loadBoxes();
 
 /* 彩灯 */
-(function(){
-  var l=document.getElementById("lights"),h="";
-  for(var i=0;i<24;i++) h+='<span class="bulb b'+(i%6+1)+'"></span>';
-  l.innerHTML=h;
-})();
+(function(){var l=document.getElementById("lights"),h="";
+  for(var i=0;i<24;i++)h+='<span class="bulb b'+(i%6+1)+'"></span>';l.innerHTML=h;})();
 
 /* 倒计时 */
-(function(){
-  var cd=document.getElementById("countdown");
+(function(){var cd=document.getElementById("countdown");
   var diff=Math.ceil((OPEN_DAY-today0())/DAY);
-  if(diff>0) cd.innerHTML="距离开拆还有 <b>"+diff+"</b> 天";
-  else if(today0()<=new Date(2026,11,25)) cd.innerHTML="圣诞周 · <b>今天可以拆了</b>";
+  if(diff>0)cd.innerHTML="距离开拆还有 <b>"+diff+"</b> 天";
+  else if(today0().getTime()===new Date(2026,11,25).getTime())cd.innerHTML="🎄 今天是最后一天 · <b>拆完它</b>";
+  else if(today0()<=new Date(2026,11,25))cd.innerHTML="圣诞周 · <b>今天可以拆了</b>";
   else cd.innerHTML="这一轮圣诞结束了 · 但月亮每天都升起来";
 })();
 
-/* 格子（不剧透：只显示日期 + 第几格） */
+/* 格子 */
 var grid=document.getElementById("grid");
 var ROMAN=["I","II","III","IV","V","VI","VII"];
 function openedSet(){try{return JSON.parse(localStorage.getItem("xmas_opened")||"[]");}catch(e){return[];}}
@@ -326,44 +682,293 @@ function markOpened(i){var s=openedSet();if(s.indexOf(i)<0){s.push(i);try{localS
 
 function renderGrid(){
   grid.innerHTML="";
+  /* 大圣诞树：四层树冠 + 金彩带 + 树干 + 雪地 + 树顶星 */
+  var tree=document.createElement("div");tree.className="bigtree";
+  tree.innerHTML='<div class="tier t1"></div><div class="tier t2"></div>'+
+    '<div class="tier t3"></div><div class="tier t4"></div>'+
+    '<div class="sc s1"></div><div class="sc s2"></div><div class="sc s3"></div><div class="sc s4"></div>'+
+    '<div class="gar g1"></div><div class="gar g2"></div><div class="gar g3"></div>'+
+    '<div class="tree-trunk"></div>';
+  grid.appendChild(tree);
+  /* 浆果 + 金球点缀 */
+  var DECOR=[[46,9],[58,15],[38,17],[30,29],[62,32],[50,38],[70,40],[22,40],
+    [40,48],[58,50],[80,49],[14,60],[36,63],[66,62],[88,63],[28,72],[52,74],[74,73]];
+  DECOR.forEach(function(p,k){
+    var d=document.createElement("span");
+    d.className=(k%3===2)?"gball":"berry";
+    d.style.left=p[0]+"%";d.style.top=p[1]+"%";
+    grid.appendChild(d);
+  });
+  /* 两侧氛围装饰：雪人 + 麋鹿 + 星光铃铛 */
+  [["side-deco sd-snowman","☃️"],["side-deco sd-deer","🦌"],
+   ["side-deco sd-spark1","✨"],["side-deco sd-spark2","🔔"]].forEach(function(cfg){
+    var d=document.createElement("span");
+    d.className=cfg[0];d.textContent=cfg[1];
+    grid.appendChild(d);
+  });
+  var star=document.createElement("div");star.className="tree-star";star.textContent="⭐";
+  grid.appendChild(star);
+  var ground=document.createElement("div");ground.className="snow-ground";
+  grid.appendChild(ground);
   var t=today0();
+  /* 盲盒挂在树枝上：从树脚往树顶， zigzag 上升，12.25 在树顶星星下 */
+  var ORN_POS=[
+    {left:"6%", top:"80%"}, /* I    12.19 树脚左 */
+    {left:"55%",top:"68%"}, /* II   12.21 */
+    {left:"13%",top:"56%"}, /* III  12.20 */
+    {left:"60%",top:"48%"}, /* IV   12.22 冬至 */
+    {left:"20%",top:"34%"}, /* V    12.23 */
+    {left:"63%",top:"26%"}, /* VI   12.24 平安夜 */
+    {left:"42%",top:"5%"}   /* VII  12.25 树顶星星下 */
+  ];
   BOXES.forEach(function(b,i){
     var d=new Date(b.date+"T00:00:00");
-    var locked=!PREVIEW && t<d;
+    var locked=!window.DEV_UNLOCK && !PREVIEW && t<d;
     var isToday=t.getTime()===d.getTime();
+    var isDongzhi=b.date==="2026-12-22";
+    var isFinal=i===BOXES.length-1;
     var cell=document.createElement("div");
-    var isDongzhi = b.date==="2026-12-22";
-    cell.className="cell"+(locked?" locked":"")+(isToday?" today":"")+(isDongzhi?" dongzhi":"");
-    cell.innerHTML=
+    cell.className="cell orn"+(isFinal?" top":"")+
+      (locked?" locked":"")+(isToday?" today":"")+(isDongzhi?" dongzhi":"")+(isFinal?" final":"");
+    var pos=ORN_POS[i]||{left:"50%",top:"50%"};
+    cell.style.left=pos.left;cell.style.top=pos.top;
+    cell.innerHTML='<span class="tag'+(i%2?' r':'')+'">'+(i%2?'🐭':'🐶')+'</span>'+
       '<div class="box">'+
-        (isDongzhi?'<span class="dz-pin">冬至 ❄</span>':'')+
-        (isToday?'<span class="today-pin">今天</span>':'')+
-        (!locked?'<span class="opened-mark" style="display:none">已拆 ✓</span>':'')+
-        '<div class="box-top">'+
-          '<div class="snowcap"></div>'+
-          '<div class="gift">'+
-            '<div class="g-ribbon-v"></div><div class="g-body"></div>'+
-            '<div class="g-lid"></div>'+
-            '<div class="g-bow"><i></i><i></i><b></b></div>'+
-          '</div>'+
+      (isDongzhi?'<span class="dz-pin">冬至 ❄</span>':'')+
+      (isFinal?'<span class="final-pin">圣诞 🎄</span>':'')+
+      (isToday?'<span class="today-pin">今天</span>':'')+
+      (!locked?'<span class="opened-mark" style="display:none">已拆 ✓</span>':'')+
+      '<div class="box-top">'+
+        '<div class="snowcap"></div>'+
+        '<div class="gift">'+
+          '<div class="g-rib l"></div><div class="g-rib r"></div><div class="g-body"></div>'+
+          '<div class="g-lid"></div>'+
+          '<div class="g-bow"><i></i><i></i><b></b></div>'+
         '</div>'+
-        '<div class="box-info">'+
-          '<div class="day-tag">'+b.date.slice(5).replace("-"," / ")+'</div>'+
-          '<div class="box-title">'+ROMAN[i]+' 号盲盒</div>'+
-        '</div>'+
-      '</div>';
+      '</div>'+
+      '<div class="box-info">'+
+        '<div class="day-tag">'+b.date.slice(5).replace("-"," / ")+'</div>'+
+        '<div class="box-title">'+ROMAN[i]+' 号盲盒</div>'+
+      '</div>'+
+    '</div>';
     cell.addEventListener("click",function(){
-      if(locked){shake(cell);return;}
-      if(!BOXES[i].body){shake(cell);toastMsg("这个盒子还没装东西哦");return;}
-      openCard(i);
-      if(openedSet().indexOf(i)<0){markOpened(i);setOpened(i);}
+      if(locked){guideToToday(cell);return;}
+      var testMode=window.DEV_UNLOCK||PREVIEW;
+      if(!BOXES[i].body && !testMode){shake(cell);toastMsg("这个盒子还没装东西哦");return;}
+      if(cell.classList.contains("opening"))return;
+      /* 开盒：盒子内部盖子飞走 + 全屏特效层放粒子 */
+      cell.classList.add("opening");
+      var rect=cell.querySelector(".box-top").getBoundingClientRect();
+      var fxLayer=document.getElementById("fxLayer");
+      var anchor=document.createElement("div");
+      anchor.className="fx-anchor "+FX_THEMES[i];
+      anchor.style.left=rect.left+"px";
+      anchor.style.top=rect.top+"px";
+      anchor.style.width=rect.width+"px";
+      anchor.style.height=rect.height+"px";
+      fxLayer.appendChild(anchor);
+      buildFx(i,anchor);
+      setTimeout(function(){
+        cell.classList.remove("opening");
+        openCard(i);
+        if(openedSet().indexOf(i)<0){markOpened(i);setOpened(i);}
+        if(isFinal){confettiBurst();appendLetterBtn(i);}
+      },620);
+      setTimeout(function(){anchor.remove();},2000);
     });
     grid.appendChild(cell);
   });
+  /* 彩灯撒在树冠上（从树根往树顶，随日子逐层点亮） */
+  var BULB_POS=[[50,8],[42,13],[58,13],[35,20],[47,18],[57,20],[65,17],
+    [30,26],[42,28],[54,26],[66,29],[24,34],[50,33],[72,36],
+    [18,44],[34,46],[50,44],[66,46],[82,44],[28,52],[56,52],[74,53],
+    [12,62],[30,64],[48,62],[64,64],[80,62],[92,64],[22,70],[42,71],[60,70],[78,71]];
+  requestAnimationFrame(function(){
+    BULB_POS.forEach(function(p,bi){
+      var bulb=document.createElement("span");
+      bulb.className="pl-bulb c"+(bi%5+1);
+      bulb.style.left=p[0]+"%";
+      bulb.style.top=p[1]+"%";
+      bulb.dataset.depth=(1-p[1]/100);
+      bulb.style.animationDelay=(Math.random()*2.4)+"s";
+      grid.appendChild(bulb);
+    });
+    updatePathProgress(t);
+  });
   openedSet().forEach(function(i){setOpened(i);});
 }
-function setOpened(i){var m=grid.children[i]&&grid.children[i].querySelector(".opened-mark");if(m)m.style.display="";}
+/* 点到还没解锁的盒子：一串星光从那格飞到今天该拆的格子 */
+function guideToToday(fromCell){
+  var cells=grid.querySelectorAll(".cell");
+  var t=today0();
+  var idx=-1;
+  BOXES.forEach(function(b,i){if(t>=new Date(b.date+"T00:00:00"))idx=i;});
+  if(idx<0)idx=0;
+  var target=cells[idx];
+  if(!target||target===fromCell)return;
+  var fr=fromCell.getBoundingClientRect();
+  var tr=target.getBoundingClientRect();
+  var gr=grid.getBoundingClientRect();
+  var sx=fr.left-gr.left+fr.width/2, sy=fr.top-gr.top+10;
+  var ex=tr.left-gr.left+tr.width/2, ey=tr.top-gr.top+8;
+  var N=10,stars=[];
+  for(var k=0;k<N;k++){
+    var s=document.createElement("span");
+    s.className="star-g";
+    s.textContent=Math.random()<.5?"✦":"⭐";
+    s.style.fontSize=(20+Math.floor(Math.random()*12))+"px";
+    s.style.left=sx+"px";s.style.top=sy+"px";
+    s.style.animationDelay=(k*70)+"ms";
+    grid.appendChild(s);
+    var tt=k/(N-1);
+    var mx=(sx+ex)/2+(Math.random()*90-45);
+    var my=Math.min(sy,ey)-70-Math.random()*60;
+    stars.push({el:s,mx:mx,my:my,tt:tt});
+  }
+  fromCell.classList.add("guiding");
+  requestAnimationFrame(function(){requestAnimationFrame(function(){
+    stars.forEach(function(o){
+      var u=o.tt;
+      var x=(1-u)*(1-u)*sx+2*(1-u)*u*o.mx+u*u*ex;
+      var y=(1-u)*(1-u)*sy+2*(1-u)*u*o.my+u*u*ey;
+      o.el.style.left=x+"px";o.el.style.top=y+"px";
+    });
+  })});
+  /* 飞行途中掉落金粉拖尾 */
+  var tailTimer=setInterval(function(){
+    stars.forEach(function(o,idx){
+      if(idx%2)return;
+      var r=o.el.getBoundingClientRect();
+      var g=grid.getBoundingClientRect();
+      var t=document.createElement("span");
+      t.className="star-t";
+      t.style.left=(r.left-g.left+r.width/2-3)+"px";
+      t.style.top=(r.top-g.top+r.height/2-3)+"px";
+      grid.appendChild(t);
+      setTimeout(function(){t.remove();},1000);
+    });
+  },70);
+  setTimeout(function(){clearInterval(tailTimer);},1250);
+  setTimeout(function(){
+    stars.forEach(function(o){o.el.remove();});
+    fromCell.classList.remove("guiding");
+    target.classList.add("guiding");
+    setTimeout(function(){target.classList.remove("guiding");},2000);
+  },2400);
+}
+function setOpened(i){
+  var cells=grid.querySelectorAll(".cell");
+  var m=cells[i]&&cells[i].querySelector(".opened-mark");if(m)m.style.display="";
+}
+/* 时间流动：日子一到，树上的彩灯从树根往树顶逐层点亮 */
+function updatePathProgress(t){
+  t=t||today0();
+  var idx=-1;
+  BOXES.forEach(function(b,i){if(t>=new Date(b.date+"T00:00:00"))idx=i;});
+  if(window.DEV_UNLOCK||PREVIEW)idx=BOXES.length-1;
+  var n=BOXES.length;
+  var litRatio=idx<0?0:(0.3+0.7*((idx+1)/n));
+  grid.querySelectorAll(".pl-bulb").forEach(function(bulb){
+    bulb.classList.toggle("lit",parseFloat(bulb.dataset.depth||"0")<=litRatio);
+  });
+}
 renderGrid();
+
+/* 七格七种特效 */
+var FX_THEMES=["t-gold","t-firefly","t-snow","t-ember","t-glitter","t-moon","t-final"];
+function buildFx(i,anchor){
+  var sp,k,N,ang;
+  function mk(cls,txt,delay){
+    sp=document.createElement("span");
+    sp.className=cls;
+    if(txt)sp.textContent=txt;
+    if(delay!=null)sp.style.animationDelay=delay+"s";
+    anchor.appendChild(sp);
+    return sp;
+  }
+  /* 基础三层：光柱+光芒+冲击环 */
+  mk("fx-beam");mk("fx-rays");mk("fx-ring");
+  if(i===5)mk("fx-ring r2");
+  if(i===6){mk("fx-ring r2");mk("fx-ring r3");}
+
+  if(i===1){ /* 萤火绿 */
+    N=12;for(k=0;k<N;k++){
+      sp=mk("p-firefly",null,Math.random()*0.5);
+      ang=Math.random()*Math.PI*2;
+      sp.style.setProperty("--sx",(Math.cos(ang)*(26+Math.random()*44)).toFixed(0)+"px");
+      sp.style.setProperty("--sy",(-30-Math.random()*80).toFixed(0)+"px");
+      sp.style.left=(38+Math.random()*24)+"%";
+    }
+  }
+  else if(i===2){ /* 冰雪蓝 */
+    N=16;for(k=0;k<N;k++){
+      sp=mk("spark ic",["❄","❅","❆"][k%3],k*0.018);
+      ang=Math.PI*(k/(N-1))+Math.PI/2;
+      sp.style.setProperty("--sx",(Math.cos(ang)*(34+Math.random()*54)).toFixed(0)+"px");
+      sp.style.setProperty("--sy",(-34-Math.random()*74).toFixed(0)+"px");
+    }
+  }
+  else if(i===3){ /* 冬至：暖橘火星 + 汤圆飘浮 + 雪花飘落 */
+    N=8;for(k=0;k<N;k++){
+      sp=mk("p-ember",null,Math.random()*0.3);
+      sp.style.setProperty("--sx",(-30+Math.random()*60).toFixed(0)+"px");
+      sp.style.left=(40+Math.random()*20)+"%";
+    }
+    for(k=0;k<3;k++){
+      sp=mk("p-tangyuan","🍡",k*0.15);
+      sp.style.setProperty("--sx",(-20+Math.random()*40).toFixed(0)+"px");
+    }
+    for(k=0;k<6;k++){
+      sp=mk("p-snowflake","❄",k*0.1);
+      sp.style.setProperty("--sx",(-40+Math.random()*80).toFixed(0)+"px");
+      sp.style.left=(20+Math.random()*60)+"%";
+    }
+  }
+  else if(i===4){ /* 碎钻银雨 */
+    N=18;for(k=0;k<N;k++){
+      sp=mk("p-glit",null,Math.random()*0.45);
+      sp.style.setProperty("--sx",(-50+Math.random()*100).toFixed(0)+"px");
+      sp.style.left=(15+Math.random()*70)+"%";
+    }
+  }
+  else if(i===5){ /* 月光银 */
+    N=12;for(k=0;k<N;k++){
+      sp=mk("spark sl",["✦","☾","★"][k%3],k*0.018);
+      ang=Math.PI*(k/(N-1))+Math.PI/2;
+      sp.style.setProperty("--sx",(Math.cos(ang)*(34+Math.random()*54)).toFixed(0)+"px");
+      sp.style.setProperty("--sy",(-34-Math.random()*74).toFixed(0)+"px");
+    }
+    for(k=0;k<6;k++){
+      sp=mk("dust sl",null,k*0.06);
+      sp.style.setProperty("--sx",(-40+Math.random()*80).toFixed(0)+"px");
+      sp.style.left=(38+Math.random()*24)+"%";
+    }
+  }
+  else if(i===6){ /* 彩虹终章 */
+    N=20;var cols=["#ff8f8f","#ffd23e","#8be08b","#8fc3ff","#e3a6ff","#fff6dc"];
+    for(k=0;k<N;k++){
+      sp=mk("spark",["✦","★","✧","✨","❄","☆"][k%6],k*0.018);
+      ang=Math.PI*(k/(N-1))+Math.PI/2;
+      sp.style.setProperty("--sx",(Math.cos(ang)*(34+Math.random()*54)).toFixed(0)+"px");
+      sp.style.setProperty("--sy",(-34-Math.random()*74).toFixed(0)+"px");
+      sp.style.color=cols[k%cols.length];
+      sp.style.textShadow="0 0 8px "+cols[k%cols.length]+"cc,0 0 18px "+cols[k%cols.length]+"55";
+    }
+  }
+  else{ /* I 金光 */
+    N=14;for(k=0;k<N;k++){
+      sp=mk("spark",["✦","✧","★","☆","❄","✨"][k%6],k*0.018);
+      ang=Math.PI*(k/(N-1))+Math.PI/2;
+      sp.style.setProperty("--sx",(Math.cos(ang)*(34+Math.random()*54)).toFixed(0)+"px");
+      sp.style.setProperty("--sy",(-34-Math.random()*74).toFixed(0)+"px");
+    }
+    for(k=0;k<9;k++){
+      sp=mk("dust",null,k*0.05);
+      sp.style.setProperty("--sx",(-42+Math.random()*84).toFixed(0)+"px");
+      sp.style.left=(38+Math.random()*24)+"%";
+    }
+  }
+}
 
 /* 轻提示 */
 function toastMsg(t){
@@ -377,22 +982,82 @@ function toastMsg(t){
 /* 弹卡片 */
 var overlay=document.getElementById("overlay");
 function openCard(i){
+  /* 先清掉上一张卡片遗留的信按钮（只有第七格才重新加） */
+  var oldBtn=overlay.querySelector(".letter-btn");
+  if(oldBtn)oldBtn.remove();
   var b=BOXES[i];
   document.getElementById("cardDate").textContent=b.date.replace(/-/g," / ");
   document.getElementById("cardTitle").textContent=b.title;
-  document.getElementById("cardBody").textContent=b.body;
+  document.getElementById("cardBody").textContent=b.body||"（这是空盒子 · 测试预览，正式内容在管理面板填写）";
   var ce=document.getElementById("cardCode");
   if(b.code){ce.hidden=false;ce.innerHTML=String(b.code).replace(/\n/g,"<br>");}else ce.hidden=true;
   document.getElementById("cardHidden").textContent=b.hidden||"";
+  /* 视频 */
+  var cv=document.getElementById("cardVideo"),vt=document.getElementById("cardVideoTip"),vp=document.getElementById("videoPlayer");
+  if(b.video){
+    cv.hidden=false;vt.hidden=false;
+    vp.src=b.video;
+    vp.load();
+  }else{
+    cv.hidden=true;vt.hidden=true;vp.src="";
+  }
   overlay.classList.add("show");
 }
 document.getElementById("cardX").addEventListener("click",function(){overlay.classList.remove("show")});
 overlay.addEventListener("click",function(e){if(e.target===overlay)overlay.classList.remove("show")});
 
-function shake(el){
-  el.style.animation="none";void el.offsetWidth;
-  el.style.animation="shake .4s";
+/* 第七格 · 圣诞信纸 */
+function appendLetterBtn(i){
+  var card=document.querySelector("#overlay .card");
+  if(card.querySelector(".letter-btn"))return;
+  var btn=document.createElement("button");
+  btn.className="letter-btn";btn.textContent="还有一封信 💌";
+  btn.addEventListener("click",function(){overlay.classList.remove("show");openLetter();});
+  var paw=card.querySelector(".card-paw");
+  card.insertBefore(btn,paw);
 }
+function openLetter(){
+  var L=window.LETTER;
+  document.getElementById("ltDate").textContent=L.date;
+  document.getElementById("ltTitle").textContent=L.title;
+  document.getElementById("ltBody").textContent=L.body;
+  document.getElementById("ltSign").textContent="— "+(L.sign||"庄烨");
+  var chars=document.getElementById("ltChars");chars.innerHTML="";
+  L.reveal.split("").forEach(function(c,k){
+    var s=document.createElement("span");s.textContent=c;s.style.animationDelay=(0.25*k)+"s";chars.appendChild(s);
+  });
+  document.getElementById("letterOverlay").classList.add("show");
+  document.getElementById("letterOverlay").scrollTop=0;
+}
+document.getElementById("letterX").addEventListener("click",function(){
+  document.getElementById("letterOverlay").classList.remove("show");
+});
+document.getElementById("letterOverlay").addEventListener("click",function(e){
+  if(e.target===this)this.classList.remove("show");
+});
+
+/* 彩带 */
+function confettiBurst(){
+  var cv=document.getElementById("confetti"),cx=cv.getContext("2d");
+  cv.width=innerWidth;cv.height=innerHeight;
+  var cols=["#ffd23e","#ff6b6b","#6bd66b","#5db9ff","#ff9de2","#fff6dc"];
+  var ps=[];
+  for(var i=0;i<140;i++)ps.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,
+    w:6+Math.random()*7,h:4+Math.random()*8,vy:2+Math.random()*3.2,vx:-1.4+Math.random()*2.8,
+    rot:Math.random()*Math.PI,vr:-.12+Math.random()*.24,c:cols[i%cols.length]});
+  var t0=Date.now();
+  (function anim(){
+    cx.clearRect(0,0,cv.width,cv.height);
+    ps.forEach(function(p){
+      p.y+=p.vy;p.x+=p.vx;p.rot+=p.vr;
+      cx.save();cx.translate(p.x,p.y);cx.rotate(p.rot);
+      cx.fillStyle=p.c;cx.fillRect(-p.w/2,-p.h/2,p.w,p.h);cx.restore();
+    });
+    if(Date.now()-t0<5200)requestAnimationFrame(anim);else cx.clearRect(0,0,cv.width,cv.height);
+  })();
+}
+
+function shake(el){el.style.animation="none";void el.offsetWidth;el.style.animation="shake .4s";}
 var st=document.createElement("style");
 st.textContent="@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}";
 document.head.appendChild(st);
@@ -411,31 +1076,43 @@ document.getElementById("pwInput").addEventListener("keydown",function(e){if(e.k
 function tryPw(){
   if(document.getElementById("pwInput").value===String(window.ADMIN_PASS)){
     pwOverlay.classList.remove("show");openAdmin();
-  }else{ toastMsg("密码不对哦"); }
+  }else{toastMsg("密码不对哦");}
 }
 function openAdmin(){
-  var f=document.getElementById("adminFields");
-  f.innerHTML="";
+  var f=document.getElementById("adminFields");f.innerHTML="";
   BOXES.forEach(function(b,i){
-    var det=document.createElement("details");
-    det.open=(i===0);
-    det.innerHTML=
-      '<summary>'+b.date+' · '+ROMAN[i]+' 号盲盒</summary>'+
-      '<div class="f">'+
-        '<label>卡片正文</label>'+
-        '<textarea id="f_body_'+i+'"></textarea>'+
-        '<label style="margin-top:10px">底部框：店铺线索 / 暗号 / 核销码（留空则不显示）</label>'+
-        '<textarea id="f_code_'+i+'" style="min-height:70px"></textarea>'+
-      '</div>';
+    var det=document.createElement("details");det.open=(i===0);
+    det.innerHTML='<summary>'+b.date+' · '+ROMAN[i]+' 号盲盒</summary>'+
+      '<div class="f"><label>卡片正文</label><textarea id="f_body_'+i+'"></textarea>'+
+      '<label style="margin-top:10px">视频文件名（如 video1.mp4，留空则无视频）</label>'+
+      '<input id="f_video_'+i+'" type="text" placeholder="video1.mp4" style="margin-bottom:10px">'+
+      '<label style="margin-top:10px">底部框：店铺线索 / 暗号 / 核销码（留空则不显示）</label>'+
+      '<textarea id="f_code_'+i+'" style="min-height:70px"></textarea></div>';
     f.appendChild(det);
     det.querySelector("#f_body_"+i).value=b.body||"";
+    det.querySelector("#f_video_"+i).value=b.video||"";
     det.querySelector("#f_code_"+i).value=b.code||"";
   });
+  /* 圣诞信编辑器 */
+  var lt=document.createElement("details");
+  lt.innerHTML='<summary>💌 第七格 · 圣诞信内容</summary>'+
+    '<div class="f"><label>信的标题</label><input id="f_lt_title" type="text">'+
+    '<label style="margin-top:10px">日期行</label><input id="f_lt_date" type="text">'+
+    '<label style="margin-top:10px">正文（换行直接打回车）</label><textarea id="f_lt_body" style="min-height:200px"></textarea>'+
+    '<label style="margin-top:10px">七个隐藏字揭晓的那句话（7个字）</label><input id="f_lt_reveal" type="text">'+
+    '<label style="margin-top:10px">署名</label><input id="f_lt_sign" type="text"></div>';
+  f.appendChild(lt);
+  var L=window.LETTER;
+  lt.querySelector("#f_lt_title").value=L.title||"";
+  lt.querySelector("#f_lt_date").value=L.date||"";
+  lt.querySelector("#f_lt_body").value=L.body||"";
+  lt.querySelector("#f_lt_reveal").value=L.reveal||"";
+  lt.querySelector("#f_lt_sign").value=L.sign||"";
   admin.classList.add("show");
 }
 document.getElementById("abClose").addEventListener("click",function(){admin.classList.remove("show");PREVIEW=false;renderGrid();});
 document.getElementById("abSave").addEventListener("click",function(){
-  collect();try{localStorage.setItem("xmas_boxes",JSON.stringify(BOXES));}catch(e){}
+  collect();try{localStorage.setItem("xmas_boxes",JSON.stringify(BOXES));localStorage.setItem("xmas_letter",JSON.stringify(window.LETTER));}catch(e){}
   document.getElementById("abSaved").classList.add("show");
   setTimeout(function(){document.getElementById("abSaved").classList.remove("show");},2000);
 });
@@ -444,53 +1121,69 @@ document.getElementById("abReset").addEventListener("click",function(){
   BOXES=JSON.parse(JSON.stringify(window.BOXES_DEFAULT));
   openAdmin();renderGrid();toastMsg("已恢复默认");
 });
+document.getElementById("abClearOpened").addEventListener("click",function(){
+  try{localStorage.removeItem("xmas_opened");}catch(e){}
+  renderGrid();toastMsg("已重置：全部恢复未拆状态");
+});
 document.getElementById("abPreview").addEventListener("click",function(){
   collect();PREVIEW=!PREVIEW;renderGrid();
   toastMsg(PREVIEW?"预览模式：全部已解锁":"已退出预览");
 });
+/* 开放模式开关：测试时全解锁，正式时按日期锁（记住选择） */
+function refreshDevBtn(){
+  var b=document.getElementById("abDev");
+  b.textContent=window.DEV_UNLOCK?"🔓 开放模式：开（全部可拆）":"🔒 开放模式：关（按日期锁）";
+}
+document.getElementById("abDev").addEventListener("click",function(){
+  window.DEV_UNLOCK=!window.DEV_UNLOCK;
+  try{localStorage.setItem("xmas_dev",window.DEV_UNLOCK?"1":"0");}catch(e){}
+  PREVIEW=false;renderGrid();refreshDevBtn();
+  toastMsg(window.DEV_UNLOCK?"开放模式：全部盒子随时可拆（测试用）":"正式模式：没到的日子会锁住，点了出星光指引");
+});
+refreshDevBtn();
 function collect(){
   BOXES.forEach(function(b,i){
     b.body=document.getElementById("f_body_"+i).value;
+    b.video=document.getElementById("f_video_"+i).value.trim();
     b.code=document.getElementById("f_code_"+i).value;
   });
+  var lt=document.getElementById("f_lt_title");
+  if(lt){
+    window.LETTER.title=lt.value;
+    window.LETTER.date=document.getElementById("f_lt_date").value;
+    window.LETTER.body=document.getElementById("f_lt_body").value;
+    window.LETTER.reveal=document.getElementById("f_lt_reveal").value;
+    window.LETTER.sign=document.getElementById("f_lt_sign").value;
+  }
 }
-/* 生成分享版：把当前内容写回 index.html 的 BOXES 区块并下载 */
 document.getElementById("abExport").addEventListener("click",async function(){
-  collect();
-  var json=JSON.stringify(BOXES,null,2);
-  var src=null;
-  try{
-    var r=await fetch(location.href,{cache:"no-store"});
-    if(r.ok) src=await r.text();
-  }catch(e){}
-  if(!src){ toastMsg("本地 file:// 打开无法自动生成，请先部署到网上，或直接改文件"); return; }
+  collect();var json=JSON.stringify(BOXES,null,2);var src=null;
+  try{var r=await fetch(location.href,{cache:"no-store"});if(r.ok)src=await r.text();}catch(e){}
+  if(!src){toastMsg("本地 file:// 打开无法自动生成，请先部署到网上，或直接改文件");return;}
   var s=src.indexOf("/*__BOXES_START__*/"),e2=src.indexOf("/*__BOXES_END__*/");
-  if(s<0||e2<0){ toastMsg("文件结构不对，缺少标记"); return; }
+  if(s<0||e2<0){toastMsg("文件结构不对，缺少标记");return;}
   var out=src.slice(0,s)+"/*__BOXES_START__*/\n"+json+"\n"+src.slice(e2);
+  /* 同步写入圣诞信 */
+  var ls=out.indexOf("/*__LETTER_START__*/"),le=out.indexOf("/*__LETTER_END__*/");
+  if(ls>=0&&le>=0){
+    out=out.slice(0,ls)+"/*__LETTER_START__*/"+JSON.stringify(window.LETTER,null,2)+out.slice(le);
+  }
   var blob=new Blob([out],{type:"text/html;charset=utf-8"});
-  var a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);a.download="index.html";
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="index.html";
   document.body.appendChild(a);a.click();a.remove();
   setTimeout(function(){URL.revokeObjectURL(a.href);},1200);
   toastMsg("已生成 index.html，上传到 GitHub 即可");
 });
 
 /* 雪花 */
-(function(){
-  var cv=document.getElementById("snow"),ctx=cv.getContext("2d"),fl=[],W,H;
-  function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
-  rs();addEventListener("resize",rs);
+(function(){var cv=document.getElementById("snow"),ctx=cv.getContext("2d"),fl=[],W,H;
+  function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight;}rs();addEventListener("resize",rs);
   for(var i=0;i<50;i++)fl.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:.8+Math.random()*2.6,s:.3+Math.random()*.9,w:Math.random()*Math.PI*2});
-  (function tick(){
-    ctx.clearRect(0,0,W,H);
-    ctx.fillStyle="rgba(255,255,255,.85)";
-    fl.forEach(function(f){
-      f.y+=f.s;f.x+=Math.sin(f.w+=.01)*.4;
+  (function tick(){ctx.clearRect(0,0,W,H);ctx.fillStyle="rgba(255,255,255,.85)";
+    fl.forEach(function(f){f.y+=f.s;f.x+=Math.sin(f.w+=.01)*.4;
       if(f.y>H+6){f.y=-6;f.x=Math.random()*W;}
-      ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,7);ctx.fill();
-    });
-    requestAnimationFrame(tick);
-  })();
+      ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,7);ctx.fill();});
+    requestAnimationFrame(tick);})();
 })();
 </script>
 </body>
