@@ -411,6 +411,18 @@ h1 .hb{display:inline-block;animation:hb 1.6s ease-in-out infinite}
   padding:14px 16px;text-align:center;font-size:14px;color:#8a5a20;line-height:2}
 .card-hidden{position:absolute;bottom:8px;right:14px;font-size:22px;opacity:.15;user-select:none}
 .card-paw{font-size:13px;text-align:center;margin-top:20px;color:#c9a06a;letter-spacing:.3em}
+/* 猜礼物 */
+.guess{margin-top:16px;background:#fff8ea;border:1.5px dashed #d9b98c;border-radius:14px;padding:12px 14px}
+.guess-title{font-size:13px;font-weight:700;color:var(--red-deep);letter-spacing:.1em}
+.guess-hint{font-size:13px;color:#7a5c44;margin-top:6px;line-height:1.7}
+.guess-row{display:flex;gap:8px;margin-top:10px}
+.guess-row input{flex:1;border:1.5px solid #d9c5a0;border-radius:10px;padding:8px 10px;font-size:13px;min-width:0}
+.guess-row button{border:none;background:var(--red);color:#fff;border-radius:10px;padding:8px 16px;font-size:13px;cursor:pointer}
+.guess-msg{font-size:12px;margin-top:8px;color:#b08d5f;min-height:16px}
+/* 幸运转盘 */
+.wheel-pointer{position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:26px;color:var(--red);
+  filter:drop-shadow(0 2px 3px rgba(80,20,10,.4));z-index:2;pointer-events:none}
+#wheelCv{transition:none}
 
 /* 卡片内视频 */
 .card-video{margin-top:16px;border-radius:12px;overflow:hidden;background:#1a1a2e;
@@ -541,6 +553,15 @@ footer .admin-trigger{cursor:default;user-select:none;opacity:.55}
     <div class="card-video-tip" id="cardVideoTip" hidden>🎬 点开看今天的视频</div>
     <div class="card-code" id="cardCode" hidden></div>
     <div class="card-hidden" id="cardHidden"></div>
+    <div class="guess" id="guessBox" hidden>
+      <div class="guess-title">🔮 猜猜明天拆什么？</div>
+      <div class="guess-hint" id="guessHint"></div>
+      <div class="guess-row">
+        <input id="guessInput" placeholder="写下你的猜想…" autocomplete="off">
+        <button id="guessGo">猜</button>
+      </div>
+      <div class="guess-msg" id="guessMsg"></div>
+    </div>
     <div class="card-paw">🐾 TO YY 🐾</div>
   </div>
 </div>
@@ -558,6 +579,38 @@ footer .admin-trigger{cursor:default;user-select:none;opacity:.55}
       <div class="rv-line">这七天，你拆开过的每个角落，都藏着一个字——</div>
       <div class="rv-chars" id="ltChars"></div>
     </div>
+  </div>
+</div>
+
+<!-- 幸运转盘弹层 -->
+<div class="overlay" id="wheelOverlay">
+  <div class="card" style="max-width:360px">
+    <button class="card-x" id="wheelX">✕</button>
+    <div class="card-title" style="font-size:17px">🎁 猜中了 · 幸运转盘</div>
+    <div class="card-divider"></div>
+    <div style="position:relative;width:min(280px,80vw);margin:10px auto 0">
+      <div class="wheel-pointer">▼</div>
+      <canvas id="wheelCv" width="560" height="560" style="width:100%;display:block"></canvas>
+    </div>
+    <div style="display:flex;justify-content:center;margin-top:16px">
+      <button id="wheelGo" style="border:none;background:var(--red);color:#fff;border-radius:99px;padding:10px 34px;font-size:14px;cursor:pointer;letter-spacing:.2em">转！</button>
+    </div>
+    <div class="card-body" id="wheelResult" style="text-align:center;min-height:24px;margin-top:10px;font-size:14px"></div>
+    <div id="wheelHistory" style="margin-top:10px;border-top:1.5px dashed #d9b98c;padding-top:10px;font-size:12.5px;color:#7a5c44;text-align:center;line-height:1.9"></div>
+  </div>
+</div>
+
+<!-- 彩蛋弹层 -->
+<div class="overlay" id="eggOverlay">
+  <div class="card" style="max-width:400px">
+    <button class="card-x" id="eggX">✕</button>
+    <div class="card-title" style="font-size:17px">✨ 你发现了一个彩蛋</div>
+    <div class="card-divider"></div>
+    <div class="card-body" id="eggText" style="white-space:pre-line;text-align:center"></div>
+    <div class="card-video" id="eggVideoWrap" hidden>
+      <video id="eggPlayer" controls playsinline preload="metadata"></video>
+    </div>
+    <div class="card-paw">🐾 🐶 🐭 🐾</div>
   </div>
 </div>
 
@@ -648,6 +701,27 @@ try{
   if(_ls){var _lo=JSON.parse(_ls);for(var _k in _lo)window.LETTER[_k]=_lo[_k];}
 }catch(e){}
 
+/* ═══ 猜礼物 & 转盘 & 彩蛋配置 ═══
+   GUESS : 每天拆完猜明天的礼物。hint=给她的提示，answer=答案关键词（多个用|隔开，包含任意一个即算猜中；留空""=答案保密）
+   WHEEL : 幸运转盘奖项（管理面板可改，一行一个）
+   EGG   : 七格全部拆完后，从 I 到 VII 依次点击触发的彩蛋（视频+文字） */
+window.GUESS_DEFAULT = /*__GUESS_START__*/[
+  { hint:"明天拆到的，往脖子上一围，冬天的风就输了。", answer:"围巾|围脖" },
+  { hint:"明天是个小家伙，会一直挂在你最常背的那个包上。", answer:"吊卡|挂件|挂饰" },
+  { hint:"明天是冬至。猜一样不用煮、开罐就能喝的甜。", answer:"酒酿|红豆|汤圆|甜" },
+  { hint:"明天是个大工程，要一片一片完成的哦。", answer:"拼图" },
+  { hint:"明天平安夜，有一样东西要挂在床头等的。", answer:"袜子|圣诞袜" },
+  { hint:"最后一天……这个我保密，猜了也不告诉你。", answer:"" }
+]/*__GUESS_END__*/;
+window.WHEEL_DEFAULT = /*__WHEEL_START__*/[
+  "奶茶券 ×1","夸夸一分钟","晚安故事一段","斗图必胜券",
+  "早安盲盒一条","多聊一小时","再来一次","神秘小礼物"
+]/*__WHEEL_END__*/;
+window.EGG_DEFAULT = /*__EGG_START__*/{
+  video:"egg.mp4",
+  text:"你把这一周从头走了一遍。\n\n这个视频是彩蛋，也是压轴——\n有句话，我只在视频里说。"
+}/*__EGG_END__*/;
+
 /* ═══ 以下不用动 ═══ */
 var DAY=86400000;
 var OPEN_DAY=new Date(2026,11,19);
@@ -660,6 +734,15 @@ function loadBoxes(){
   return JSON.parse(JSON.stringify(window.BOXES_DEFAULT));
 }
 var BOXES=loadBoxes();
+function loadJSON(key,def){
+  try{var s=localStorage.getItem(key);
+    if(s){var v=JSON.parse(s);if(v)return v;}
+  }catch(e){}
+  return JSON.parse(JSON.stringify(def));
+}
+var GUESS=loadJSON("xmas_guess",window.GUESS_DEFAULT);
+var WHEEL=loadJSON("xmas_wheel",window.WHEEL_DEFAULT);
+var EGG=loadJSON("xmas_egg",window.EGG_DEFAULT);
 
 /* 彩灯 */
 (function(){var l=document.getElementById("lights"),h="";
@@ -753,6 +836,7 @@ function renderGrid(){
     '</div>';
     cell.addEventListener("click",function(){
       if(locked){guideToToday(cell);return;}
+      seqHit(i);
       var testMode=window.DEV_UNLOCK||PREVIEW;
       if(!BOXES[i].body && !testMode){shake(cell);toastMsg("这个盒子还没装东西哦");return;}
       if(cell.classList.contains("opening"))return;
@@ -860,6 +944,31 @@ function setOpened(i){
   var cells=grid.querySelectorAll(".cell");
   var m=cells[i]&&cells[i].querySelector(".opened-mark");if(m)m.style.display="";
 }
+/* ═══ 连点彩蛋：全部拆完后，从 I 到 VII 依次点击（点错顺序重新计）═══ */
+var seqP=0;
+function seqHit(i){
+  if(i===seqP)seqP++;
+  else seqP=(i===0?1:0);
+  if(seqP>=BOXES.length){seqP=0;openEgg();}
+}
+function openEgg(){
+  document.getElementById("eggText").textContent=EGG.text||"";
+  var w=document.getElementById("eggVideoWrap"),p=document.getElementById("eggPlayer");
+  if(EGG.video){w.hidden=false;p.src=EGG.video;p.load();}
+  else{w.hidden=true;p.removeAttribute("src");}
+  document.getElementById("eggOverlay").classList.add("show");
+  confettiBurst();
+}
+document.getElementById("eggX").addEventListener("click",function(){
+  document.getElementById("eggPlayer").pause();
+  document.getElementById("eggOverlay").classList.remove("show");
+});
+document.getElementById("eggOverlay").addEventListener("click",function(e){
+  if(e.target===this){
+    document.getElementById("eggPlayer").pause();
+    this.classList.remove("show");
+  }
+});
 /* 时间流动：日子一到，树上的彩灯从树根往树顶逐层点亮 */
 function updatePathProgress(t){
   t=t||today0();
@@ -1001,8 +1110,143 @@ function openCard(i){
   }else{
     cv.hidden=true;vt.hidden=true;vp.src="";
   }
+  /* 猜礼物：I~VI 拆完显示，猜明天的 */
+  var gb=document.getElementById("guessBox");
+  var g=(i<BOXES.length-1)?GUESS[i]:null;
+  if(g&&g.hint){
+    gb.hidden=false;
+    gb.dataset.idx=i;
+    document.getElementById("guessHint").textContent=g.hint;
+    document.getElementById("guessInput").value="";
+    document.getElementById("guessMsg").textContent="";
+  }else gb.hidden=true;
   overlay.classList.add("show");
 }
+/* 猜礼物判定 */
+document.getElementById("guessGo").addEventListener("click",tryGuess);
+document.getElementById("guessInput").addEventListener("keydown",function(e){if(e.key==="Enter")tryGuess()});
+function tryGuess(){
+  var gb=document.getElementById("guessBox");
+  if(gb.hidden)return;
+  var i=+gb.dataset.idx,g=GUESS[i]||{};
+  var ans=String(document.getElementById("guessInput").value||"").trim();
+  var msg=document.getElementById("guessMsg");
+  if(!ans){msg.textContent="先写下一个猜想嘛";return;}
+  var keys=String(g.answer||"").split("|").map(function(s){return s.trim();}).filter(Boolean);
+  if(!keys.length){
+    msg.textContent="这个答案保密——明天拆开就知道了 😜";
+    return;
+  }
+  if(keys.some(function(k){return ans.indexOf(k)>=0;})){
+    msg.textContent="✓ 猜中了！";
+    openWheel();
+  }else{
+    msg.textContent="嗯……不是这个，但勇气可嘉。明天拆开见分晓。";
+    shake(gb);
+  }
+}
+/* 幸运转盘 */
+var wheelSpinning=false,wheelAngle=0;
+function drawWheel(){
+  var cv=document.getElementById("wheelCv"),cx=cv.getContext("2d");
+  var n=Math.max(WHEEL.length,2),R=cv.width/2;
+  var cols=["#c9503f","#3f7a5c","#d9a441","#4a6bb5","#b03a34","#31604a","#e0aa3e","#8c6bb5"];
+  cx.clearRect(0,0,cv.width,cv.height);
+  var a0=-Math.PI/2,seg=Math.PI*2/n;
+  for(var k=0;k<n;k++){
+    cx.beginPath();cx.moveTo(R,R);cx.arc(R,R,R,a0+k*seg,a0+(k+1)*seg);cx.closePath();
+    cx.fillStyle=cols[k%cols.length];cx.fill();
+    cx.save();cx.translate(R,R);cx.rotate(a0+(k+.5)*seg);
+    cx.fillStyle="#fff6e8";cx.font="bold 26px sans-serif";cx.textAlign="center";cx.textBaseline="middle";
+    var t=String(WHEEL[k]||"");if(t.length>7)t=t.slice(0,7);
+    cx.fillText(t,R*0.63,0);cx.restore();
+  }
+  cx.beginPath();cx.arc(R,R,64,0,7);cx.fillStyle="#fffdf6";cx.fill();
+  cx.beginPath();cx.arc(R,R,56,0,7);cx.strokeStyle="#d9a441";cx.lineWidth=8;cx.stroke();
+  cx.fillStyle="#8c2b26";cx.font="bold 52px sans-serif";cx.textAlign="center";cx.textBaseline="middle";
+  cx.fillText("GO",R,R);
+}
+/* 奖品存档（localStorage，重开网站不丢） */
+function loadPrizes(){
+  try{var a=JSON.parse(localStorage.getItem("xmas_prizes")||"[]");return Array.isArray(a)?a:[];}catch(e){return[];}
+}
+function prizeForDay(idx){
+  var a=loadPrizes();
+  for(var k=0;k<a.length;k++){if(a[k].idx===idx)return a[k];}
+  return null;
+}
+function savePrize(prize,idx){
+  var a=loadPrizes();
+  if(prizeForDay(idx))return; /* 该格已抽过，不许覆盖 */
+  a.push({idx:idx,prize:prize,time:new Date().toLocaleDateString("zh-CN"),day:"12/"+(idx+19)+" 拆盒后抽中"});
+  try{localStorage.setItem("xmas_prizes",JSON.stringify(a));}catch(e){}
+}
+function renderPrizeHistory(){
+  var a=loadPrizes(),el=document.getElementById("wheelHistory");
+  if(!el)return;
+  if(!a.length){el.innerHTML="";return;}
+  var h="<b style='color:#b03a34'>🏅 已抽中的奖励（凭此找庄烨兑现）</b><br>";
+  a.forEach(function(p,k){h+=(k+1)+". "+p.prize+" <span style='color:#b08d5f'>("+p.time+" "+p.day+")</span><br>";});
+  el.innerHTML=h;
+}
+function openWheel(){
+  if(!WHEEL.length){toastMsg("转盘还没设置奖项");return;}
+  drawWheel();
+  document.getElementById("wheelResult").textContent="";
+  renderPrizeHistory();
+  var gb=document.getElementById("guessBox");
+  var idx=gb&&gb.dataset.idx?+gb.dataset.idx:0;
+  var old=prizeForDay(idx);
+  var go=document.getElementById("wheelGo");
+  if(old){
+    go.disabled=true;go.textContent="已抽过";
+    document.getElementById("wheelResult").textContent="这一格你已经抽过了：「"+old.prize+"」，就它了，不许反悔 ✋";
+  }else{
+    go.disabled=false;go.textContent="转！";
+  }
+  document.getElementById("wheelOverlay").classList.add("show");
+}
+document.getElementById("wheelX").addEventListener("click",function(){
+  wheelSpinning=false;
+  document.getElementById("wheelOverlay").classList.remove("show");
+});
+document.getElementById("wheelOverlay").addEventListener("click",function(e){
+  if(e.target===this){wheelSpinning=false;this.classList.remove("show");}
+});
+document.getElementById("wheelGo").addEventListener("click",function(){
+  if(wheelSpinning)return;
+  var gb=document.getElementById("guessBox");
+  var idx=gb&&gb.dataset.idx?+gb.dataset.idx:0;
+  if(prizeForDay(idx)){toastMsg("这一格已经抽过啦，不许换奖 ✋");return;}
+  wheelSpinning=true;
+  document.getElementById("wheelResult").textContent="";
+  document.getElementById("wheelGo").disabled=true;
+  var cv=document.getElementById("wheelCv");
+  var n=Math.max(WHEEL.length,2),seg=360/n;
+  var turns=5+Math.floor(Math.random()*3);
+  var w=Math.floor(Math.random()*n);
+  var from=wheelAngle;
+  var final=wheelAngle+turns*360+(((-w*seg)-wheelAngle)%360+360)%360;
+  var t0=null,dur=4200;
+  function anim(ts){
+    if(t0===null)t0=ts;
+    var p=Math.min((ts-t0)/dur,1);
+    var e=1-Math.pow(1-p,3);
+    cv.style.transform="rotate("+(from+(final-from)*e)+"deg)";
+    if(p<1)requestAnimationFrame(anim);
+    else{
+      wheelAngle=((final%360)+360)%360;
+      wheelSpinning=false;
+      document.getElementById("wheelGo").textContent="已抽过";
+      var prize=WHEEL[w]||"谢谢参与";
+      document.getElementById("wheelResult").textContent="🎉 中了：「"+prize+"」\n凭此页面找庄烨兑现 · 奖品已锁定，不可重抽";
+      savePrize(prize,idx);
+      renderPrizeHistory();
+      confettiBurst();
+    }
+  }
+  requestAnimationFrame(anim);
+});
 document.getElementById("cardX").addEventListener("click",function(){overlay.classList.remove("show")});
 overlay.addEventListener("click",function(e){if(e.target===overlay)overlay.classList.remove("show")});
 
@@ -1087,11 +1331,22 @@ function openAdmin(){
       '<label style="margin-top:10px">视频文件名（如 video1.mp4，留空则无视频）</label>'+
       '<input id="f_video_'+i+'" type="text" placeholder="video1.mp4" style="margin-bottom:10px">'+
       '<label style="margin-top:10px">底部框：店铺线索 / 暗号 / 核销码（留空则不显示）</label>'+
-      '<textarea id="f_code_'+i+'" style="min-height:70px"></textarea></div>';
+      '<textarea id="f_code_'+i+'" style="min-height:70px"></textarea>'+
+      (i<BOXES.length-1?
+      '<label style="margin-top:10px">🔮 猜礼物：给她的提示（猜明天拆什么）</label>'+
+      '<input id="f_hint_'+i+'" type="text">'+
+      '<label style="margin-top:10px">猜礼物：答案关键词（多个用 | 隔开；留空 = 答案保密）</label>'+
+      '<input id="f_ans_'+i+'" type="text" style="margin-bottom:10px">':'')+
+      '</div>';
     f.appendChild(det);
     det.querySelector("#f_body_"+i).value=b.body||"";
     det.querySelector("#f_video_"+i).value=b.video||"";
     det.querySelector("#f_code_"+i).value=b.code||"";
+    if(i<BOXES.length-1){
+      GUESS[i]=GUESS[i]||{};
+      det.querySelector("#f_hint_"+i).value=GUESS[i].hint||"";
+      det.querySelector("#f_ans_"+i).value=GUESS[i].answer||"";
+    }
   });
   /* 圣诞信编辑器 */
   var lt=document.createElement("details");
@@ -1108,17 +1363,42 @@ function openAdmin(){
   lt.querySelector("#f_lt_body").value=L.body||"";
   lt.querySelector("#f_lt_reveal").value=L.reveal||"";
   lt.querySelector("#f_lt_sign").value=L.sign||"";
+  /* 转盘 + 彩蛋编辑器 */
+  var we=document.createElement("details");
+  we.innerHTML='<summary>🎁 幸运转盘 · 奖项（猜中礼物后抽奖）</summary>'+
+    '<div class="f"><label>奖项列表（一行一个，可增删改）</label>'+
+    '<textarea id="f_wheel" style="min-height:140px">'+WHEEL.join("\n").replace(/</g,"&lt;")+'</textarea></div>';
+  f.appendChild(we);
+  var eg=document.createElement("details");
+  eg.innerHTML='<summary>✨ 连点彩蛋（拆完全部后，从 I 到 VII 依次点击触发）</summary>'+
+    '<div class="f"><label>彩蛋视频文件名（放进网站文件夹，如 egg.mp4）</label>'+
+    '<input id="f_egg_video" type="text" placeholder="egg.mp4">'+
+    '<label style="margin-top:10px">彩蛋文字（视频上方显示）</label>'+
+    '<textarea id="f_egg_text" style="min-height:90px"></textarea></div>';
+  f.appendChild(eg);
+  eg.querySelector("#f_egg_video").value=EGG.video||"";
+  eg.querySelector("#f_egg_text").value=EGG.text||"";
   admin.classList.add("show");
 }
 document.getElementById("abClose").addEventListener("click",function(){admin.classList.remove("show");PREVIEW=false;renderGrid();});
 document.getElementById("abSave").addEventListener("click",function(){
-  collect();try{localStorage.setItem("xmas_boxes",JSON.stringify(BOXES));localStorage.setItem("xmas_letter",JSON.stringify(window.LETTER));}catch(e){}
+  collect();try{
+    localStorage.setItem("xmas_boxes",JSON.stringify(BOXES));
+    localStorage.setItem("xmas_letter",JSON.stringify(window.LETTER));
+    localStorage.setItem("xmas_guess",JSON.stringify(GUESS));
+    localStorage.setItem("xmas_wheel",JSON.stringify(WHEEL));
+    localStorage.setItem("xmas_egg",JSON.stringify(EGG));
+  }catch(e){}
   document.getElementById("abSaved").classList.add("show");
   setTimeout(function(){document.getElementById("abSaved").classList.remove("show");},2000);
 });
 document.getElementById("abReset").addEventListener("click",function(){
-  try{localStorage.removeItem("xmas_boxes");}catch(e){}
+  try{localStorage.removeItem("xmas_boxes");localStorage.removeItem("xmas_guess");
+      localStorage.removeItem("xmas_wheel");localStorage.removeItem("xmas_egg");}catch(e){}
   BOXES=JSON.parse(JSON.stringify(window.BOXES_DEFAULT));
+  GUESS=JSON.parse(JSON.stringify(window.GUESS_DEFAULT));
+  WHEEL=JSON.parse(JSON.stringify(window.WHEEL_DEFAULT));
+  EGG=JSON.parse(JSON.stringify(window.EGG_DEFAULT));
   openAdmin();renderGrid();toastMsg("已恢复默认");
 });
 document.getElementById("abClearOpened").addEventListener("click",function(){
@@ -1146,6 +1426,8 @@ function collect(){
     b.body=document.getElementById("f_body_"+i).value;
     b.video=document.getElementById("f_video_"+i).value.trim();
     b.code=document.getElementById("f_code_"+i).value;
+    var hf=document.getElementById("f_hint_"+i);
+    if(hf)GUESS[i]={hint:hf.value,answer:document.getElementById("f_ans_"+i).value};
   });
   var lt=document.getElementById("f_lt_title");
   if(lt){
@@ -1154,6 +1436,12 @@ function collect(){
     window.LETTER.body=document.getElementById("f_lt_body").value;
     window.LETTER.reveal=document.getElementById("f_lt_reveal").value;
     window.LETTER.sign=document.getElementById("f_lt_sign").value;
+  }
+  var wf=document.getElementById("f_wheel");
+  if(wf){
+    WHEEL=wf.value.split("\n").map(function(s){return s.trim();}).filter(Boolean);
+    EGG.video=document.getElementById("f_egg_video").value.trim();
+    EGG.text=document.getElementById("f_egg_text").value;
   }
 }
 document.getElementById("abExport").addEventListener("click",async function(){
@@ -1168,6 +1456,15 @@ document.getElementById("abExport").addEventListener("click",async function(){
   if(ls>=0&&le>=0){
     out=out.slice(0,ls)+"/*__LETTER_START__*/"+JSON.stringify(window.LETTER,null,2)+out.slice(le);
   }
+  /* 同步写入猜礼物 / 转盘 / 彩蛋 */
+  function replMark(out,sName,eName,val){
+    var s=out.indexOf(sName),e=out.indexOf(eName);
+    if(s>=0&&e>=0)return out.slice(0,s)+sName+JSON.stringify(val,null,2)+out.slice(e);
+    return out;
+  }
+  out=replMark(out,"/*__GUESS_START__*/","/*__GUESS_END__*/",GUESS);
+  out=replMark(out,"/*__WHEEL_START__*/","/*__WHEEL_END__*/",WHEEL);
+  out=replMark(out,"/*__EGG_START__*/","/*__EGG_END__*/",EGG);
   var blob=new Blob([out],{type:"text/html;charset=utf-8"});
   var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="index.html";
   document.body.appendChild(a);a.click();a.remove();
