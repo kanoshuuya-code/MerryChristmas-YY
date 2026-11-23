@@ -38,6 +38,33 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .b6{color:#ffd23e;background:#ffd23e;animation-delay:1.5s}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
 
+/* ═══ 进门封面 ═══ */
+#entryCover{position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;cursor:pointer;text-align:center;
+  background:linear-gradient(180deg,#5c1f1a 0%,#8c2b26 45%,#b03a34 75%,#d9694f 100%);
+  transition:opacity .9s ease,visibility .9s}
+#entryCover.bye{opacity:0;visibility:hidden;pointer-events:none}
+.ec-snow{position:absolute;inset:0;pointer-events:none;opacity:.6;
+  background-image:radial-gradient(2px 2px at 12% 18%,#fff,transparent),radial-gradient(1.6px 1.6px at 32% 8%,#fff,transparent),
+    radial-gradient(2.2px 2.2px at 55% 22%,#fff,transparent),radial-gradient(1.4px 1.4px at 74% 12%,#fff,transparent),
+    radial-gradient(2px 2px at 88% 28%,#fff,transparent),radial-gradient(1.6px 1.6px at 22% 40%,#fff,transparent),
+    radial-gradient(2px 2px at 66% 44%,#fff,transparent),radial-gradient(1.5px 1.5px at 44% 32%,#fff,transparent),
+    radial-gradient(2.2px 2.2px at 8% 62%,#fff,transparent),radial-gradient(1.6px 1.6px at 82% 58%,#fff,transparent);
+  animation:ecSnow 9s linear infinite}
+@keyframes ecSnow{to{background-position:0 320px}}
+.ec-box{font-size:88px;animation:ecGift 2.2s ease-in-out infinite;
+  filter:drop-shadow(0 10px 30px rgba(0,0,0,.4))}
+@keyframes ecGift{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-14px) rotate(3deg)}}
+.ec-title{margin-top:22px;font-size:clamp(24px,6.5vw,34px);font-weight:700;letter-spacing:.14em;
+  background:linear-gradient(180deg,#ffffff 20%,#ffeeb8 55%,#f2c46a 90%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 3px 10px rgba(60,10,5,.6))}
+.ec-sub{margin-top:12px;font-size:13px;color:#ffe9c4;letter-spacing:.28em;opacity:.9}
+.ec-hint{margin-top:34px;font-size:14px;color:#fff;background:rgba(255,253,246,.14);
+  border:1.5px solid rgba(255,232,180,.5);padding:10px 26px;border-radius:99px;
+  letter-spacing:.12em;animation:ecPulse 1.8s ease-in-out infinite;backdrop-filter:blur(4px)}
+@keyframes ecPulse{50%{transform:scale(1.07);box-shadow:0 0 22px rgba(255,210,62,.45)}}
+
 /* ═══ 音乐开关按钮 ═══ */
 #bgmBtn{position:fixed;top:40px;right:14px;z-index:60;width:42px;height:42px;border-radius:50%;
   border:2px solid rgba(255,232,180,.55);background:rgba(60,25,15,.55);color:#ffe9c4;
@@ -527,7 +554,16 @@ footer .admin-trigger{cursor:default;user-select:none;opacity:.55}
 <div id="fxLayer"></div>
 <div class="lights" id="lights"></div>
 
-<!-- 背景音乐：歌.mov（浏览器要求第一次点击后才能出声，会自动等第一次点击） -->
+<!-- 进门封面：点一下 → 音乐起 + 进入网站（浏览器规定：必须有一次点击才允许出声） -->
+<div id="entryCover">
+  <div class="ec-snow"></div>
+  <div class="ec-box">🎁</div>
+  <div class="ec-title">给姚悦的圣诞礼物</div>
+  <div class="ec-sub">从 12.19 到 12.25 · 一天一个小惊喜</div>
+  <div class="ec-hint">🔊 点一下 · 带着音乐拆开它</div>
+</div>
+
+<!-- 背景音乐：歌.mov -->
 <video id="bgm" src="bgm.mov" loop playsinline preload="auto" style="display:none"></video>
 <button id="bgmBtn" title="音乐开关">🎵</button>
 
@@ -1486,9 +1522,10 @@ document.getElementById("abExport").addEventListener("click",async function(){
   toastMsg("已生成 index.html，上传到 GitHub 即可");
 });
 
-/* ═══ 背景音乐（歌.mov）：自动等第一次点击后播放 ═══ */
+/* ═══ 背景音乐（歌.mov）：点进门封面的那一下开始播放 ═══ */
 (function(){
   var bgm=document.getElementById("bgm"),btn=document.getElementById("bgmBtn");
+  var cover=document.getElementById("entryCover");
   if(!bgm||!btn)return;
   var wantPlay=true; /* 她没主动关过就保持想播状态 */
   function refresh(){
@@ -1501,12 +1538,22 @@ document.getElementById("abExport").addEventListener("click",async function(){
     if(!wantPlay)return;
     bgm.play().then(function(){refresh();}).catch(function(){refresh();});
   }
-  /* 浏览器禁止进页就出声：先尝试，失败就等第一次点击/触摸/按键 */
-  tryPlay();
-  var kick=function(){ if(wantPlay&&bgm.paused) tryPlay(); };
-  ["pointerdown","touchstart","keydown"].forEach(function(ev){
-    document.addEventListener(ev,kick,{passive:true});
-  });
+  /* 进门封面：点一下 → 音乐起 + 封面散开（这一次点击就是浏览器要的那个手势） */
+  if(cover){
+    var opened=false;
+    cover.addEventListener("click",function(){
+      if(opened)return; opened=true;
+      tryPlay();
+      cover.classList.add("bye");
+      setTimeout(function(){cover.remove();},1000);
+    });
+  }else{
+    tryPlay();
+    var kick=function(){ if(wantPlay&&bgm.paused) tryPlay(); };
+    ["pointerdown","touchstart","keydown"].forEach(function(ev){
+      document.addEventListener(ev,kick,{passive:true});
+    });
+  }
   bgm.addEventListener("play",refresh);
   bgm.addEventListener("pause",refresh);
   btn.addEventListener("click",function(e){
