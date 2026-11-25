@@ -56,6 +56,13 @@ canvas{display:block}
   75%{transform:translateY(1vh) rotate(-1.2deg) scale(.985)}
   100%{transform:none;opacity:1}}
 .pack{position:relative;width:min(66vw,240px);aspect-ratio:5/7;--tp:0}
+/* 追踪线框：像 TouchDesigner 那样把卡包「框」在手上 */
+.trackbox{position:absolute;inset:-16px;border:1.5px solid rgba(255,215,128,.42);pointer-events:none;z-index:6;transition:border-color .25s,box-shadow .25s}
+.trackbox span{position:absolute;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:#ffe3a6;box-shadow:0 0 8px rgba(255,210,120,.8);transition:.25s}
+.trackbox span:nth-child(1){left:0;top:0}.trackbox span:nth-child(2){right:0;top:0}
+.trackbox span:nth-child(3){left:0;bottom:0}.trackbox span:nth-child(4){right:0;bottom:0}
+.packwrap.gripping .trackbox{border-color:rgba(255,175,85,.95);box-shadow:0 0 26px rgba(255,190,90,.28),inset 0 0 22px rgba(255,190,90,.12)}
+.packwrap.gripping .trackbox span{background:#ff9d6a;box-shadow:0 0 12px rgba(255,150,80,.95);width:12px;height:12px;margin:-6px}
 .pack .rays{position:absolute;left:50%;top:50%;width:340%;height:340%;transform:translate(-50%,-50%);
   background:conic-gradient(from 0deg,
     rgba(255,120,120,.0) 0deg, rgba(255,120,120,.35) 12deg, rgba(255,220,120,.0) 24deg,
@@ -408,7 +415,7 @@ canvas{display:block}
     <div class="ec-t4">🎵 音乐会自己响起 · 进入后自动开启手势识别</div>
   </div>
   <div class="ec-foot">DEC 19 — 25 · 2026 · 七 个 夜 晚</div>
-  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v12.0 · 1125</div>
+  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v13.0 · 1125</div>
 </div>
 
 <!-- 手势教学 -->
@@ -416,7 +423,7 @@ canvas{display:block}
   <div class="tut">
     <h3>星光之手</h3>
     <div class="tsub">HAND GESTURES · 也可以只用鼠标 / 手指</div>
-    <div class="tutrow"><div class="ti">🖐</div><div class="tt">一只手掌心向上张开，卡包会浮到掌心上方托着<small>另一只手拇指+食指捏合（像捏起包装角），捏住后向外拉 = 撕开 · 松开不丢进度，可以分几次拉</small></div></div>
+    <div class="tutrow"><div class="ti">🖐</div><div class="tt">一只手掌心向上张开，线框卡包会浮到掌心上方<small>另一只手拇指+食指捏合（线框变亮=捏住了），慢慢向外拉 —— 拉多远撕多远，进度完全跟手</small></div></div>
     <div class="tutrow"><div class="ti">👋</div><div class="tt">向左 / 向右挥手<small>切换前一天 / 后一天</small></div></div>
     <div class="tutrow"><div class="ti">✌️</div><div class="tt">比耶，或另一只手张开<small>翻开贺卡读信</small></div></div>
     <div class="tutrow"><div class="ti">✊</div><div class="tt">握拳摇一摇<small>晃动水晶球，下一场雪</small></div></div>
@@ -1156,6 +1163,7 @@ function renderStage(){
           '<div class="pack-half pack-top"><div class="pskin"></div><div class="pframe"></div></div>'+
           '<div class="pack-half pack-bot"><div class="pskin"></div><div class="pframe"></div></div>'+
           '<div class="stamp"><div class="st-tree">🎄</div><div class="st-num">'+ROMAN[i]+'</div><div class="st-for">FOR YY</div></div>'+
+          '<div class="trackbox"><span></span><span></span><span></span><span></span></div>'+
         '</div>'+
         '<div class="packhint">拖 拽 撕 开 · 或 张 开 手 掌 🖐</div>'+
       '</div>';
@@ -1560,7 +1568,7 @@ function setGest(mode){
     else text.textContent="🌠 点夜空放烟花 · 点 ✋ 开启手势识别";
     return;
   }
-  if(mode==="pack"){icon.textContent="🖐";text.textContent="一只手掌心向上托住 · 另一只手捏合后向外拉 = 撕开";}
+  if(mode==="pack"){icon.textContent="🖐";text.textContent="一只手掌心向上托住 · 另一只手捏住，慢慢向外拉 = 撕多少你说了算";}
   else if(mode==="tearing"){icon.textContent="✨";text.textContent="继续……就要撕开了！";}
   else if(mode==="card"){icon.textContent="✌️";text.textContent="比耶 = 翻贺卡 · 👍 按住 = 蓄力许愿 · ☝️ = 指尖烟花 · ✊ = 摇雪";}
   else if(mode==="locked"){icon.textContent="👋";text.textContent="这一夜在封印中 · 左右挥手切换";}
@@ -2046,6 +2054,10 @@ window.__swipe=function(dir){
   selectDay(cur+dir);
 };
 window.__packLive=function(){return !!($("packEl")&&!tornThisSession[cur]&&isUnlocked(cur));};
+window.__tearGet=function(){return tearState.p;};
+window.__packGrip=function(on){ /* 捏住/松开时点亮追踪线框 */
+  var w=document.querySelector(".packwrap");if(w)w.classList.toggle("gripping",!!on);
+};
 window.__wish=doWish;
 window.__shakeGlobe=function(){shakeAmp=1;toastMsg("❄ 摇一摇，下雪了");};
 window.__flip=window.__flipCard;
@@ -2150,7 +2162,7 @@ async function start(){
     window.__gestureReady();
     let lastT=0,palmHist=[],lastSwipe=0,lastWish=0,lastFlip=0,lastShake=0,lastPoint=0;
     let wishHold=false,twoSeen=false,oneHandSince=0,lastOneHint=0;
-    let tearPrevX=null,tearPrevT=0,lastRip=0,gripping=false,pinchPrevX=null;
+    let tearPrevX=null,tearPrevT=0,lastRip=0,gripping=false,pinchPrevX=null,gripStartX=0,gripBase=0;
     /* 捏合度：拇指尖(4)到食指尖(8)的距离 ÷ 手掌大小(腕0→中指根9)。捏东西≈0.2~0.35，张开≈1.0+ */
     function pinchRatio(h){
       const dx=h[4].x-h[8].x,dy=h[4].y-h[8].y;
@@ -2223,20 +2235,21 @@ async function start(){
           /* 捏合判定带迟滞：0.38 捏住，0.52 才松开 */
           if(!gripping&&pr<0.38){
             gripping=true;
+            gripStartX=ax;
+            gripBase=window.__tearGet?window.__tearGet():0; /* 从当前进度接着拉 */
+            window.__packGrip&&window.__packGrip(true);
             const r2=document.getElementById("palmRing2");if(r2)r2.classList.add("grip");
-            toastMsg("捏住了 🫳 向外拉");
+            toastMsg("捏住了 🫳 慢慢向外拉");
           }else if(gripping&&pr>0.52){
             gripping=false;
+            window.__packGrip&&window.__packGrip(false);
             const r2=document.getElementById("palmRing2");if(r2)r2.classList.remove("grip");
           }
-          /* 捏住时：往远离托盘手的方向拉，拉多少撕多少 */
-          if(gripping&&pinchPrevX!=null){
-            const trayX=1-hands[hi][9].x;
-            const away=ax>=trayX?1:-1;
-            const dx=ax-pinchPrevX;
-            if(dx*away>0.0006)window.__tearStep&&window.__tearStep(Math.abs(dx)*3.4);
+          /* 捏住时：进度绝对跟随手——拉多远撕多远，慢拉就慢撕，完全可控 */
+          if(gripping){
+            const p=gripBase+Math.abs(ax-gripStartX)/0.26;
+            window.__tearPull&&window.__tearPull(p);
           }
-          pinchPrevX=ax;
           /* 兜底：撕手快速向外一挥也撕一大口 */
           if(tearPrevX!=null&&now-tearPrevT>0){
             const vx=(ax-tearPrevX)/((now-tearPrevT)||16);
