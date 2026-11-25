@@ -119,8 +119,7 @@ canvas{display:block}
 /* ═══ 3D 贺卡 ═══ */
 .cardwrap{perspective:1600px;animation:floaty 4s ease-in-out infinite}
 .card3d{position:relative;width:min(86vw,560px);height:min(76vh,720px);transform-style:preserve-3d;
-  transform:rotateY(var(--try,0deg)) rotateX(var(--trx,0deg));
-  transition:transform .22s ease-out, width .6s cubic(.3,.8,.3,1)}
+  transition:width .6s cubic(.3,.8,.3,1)}
 .card3d.open{width:min(94vw,1080px)}
 @media (max-width:900px){
   .card3d{width:min(92vw,560px)}
@@ -431,7 +430,7 @@ canvas{display:block}
     <div class="ec-t4">🎵 音乐会自己响起 · 进入后自动开启手势识别</div>
   </div>
   <div class="ec-foot">DEC 19 — 25 · 2026 · 七 个 夜 晚</div>
-  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v14.0 · 1125</div>
+  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v14.1 · 1125</div>
 </div>
 
 <!-- 手势教学 -->
@@ -439,7 +438,7 @@ canvas{display:block}
   <div class="tut">
     <h3>星光之手</h3>
     <div class="tsub">HAND GESTURES · 也可以只用鼠标 / 手指</div>
-    <div class="tutrow"><div class="ti">🖐</div><div class="tt">一只手掌心向上张开，线框卡包会浮到掌心上方<small>握拳 = 把卡包「抓」在手里，移动手它会跟着 3D 倾斜；另一只手拇指+食指捏合，慢慢向外拉 = 撕开</small></div></div>
+    <div class="tutrow"><div class="ti">🖐</div><div class="tt">一只手掌心向上张开，线框卡包会浮到掌心上方<small>另一只手拇指+食指捏合（线框变亮=捏住了），慢慢向外拉 —— 拉多远撕多远，进度完全跟手</small></div></div>
     <div class="tutrow"><div class="ti">👋</div><div class="tt">向左 / 向右挥手<small>切换前一天 / 后一天</small></div></div>
     <div class="tutrow"><div class="ti">✌️</div><div class="tt">比耶，或另一只手张开<small>翻开贺卡读信</small></div></div>
     <div class="tutrow"><div class="ti">✊</div><div class="tt">握拳摇一摇<small>晃动水晶球，下一场雪</small></div></div>
@@ -1596,42 +1595,23 @@ addEventListener("resize",function(){setTimeout(moveLens,60);});
   addEventListener("pointerup",skyUp,{passive:true});
   addEventListener("pointercancel",function(){if(holdTm){clearTimeout(holdTm);holdTm=null;}if(holding){holding=false;window.__wishRelease&&window.__wishRelease();}},{passive:true});
 })();
-/* ═══ 掌心浮卡：卡包/贺卡跟随手掌（握拳=抓住并 3D 倾斜） ═══ */
+/* ═══ 掌心浮卡：卡包/贺卡跟随手掌 ═══ */
 (function(){
-  var fx=0.5,fy=0.55,tx=0.5,ty=0.55,active=false,held=false,hrx=0,hry=0;
-  window.__palmFloat=function(x,y,h){if(x==null){active=false;held=false;}else{active=true;tx=x;ty=Math.max(0.22,Math.min(0.78,y-0.15));held=!!h;}}; /* 悬在掌心上方 */
+  var fx=0.5,fy=0.55,tx=0.5,ty=0.55,active=false;
+  window.__palmFloat=function(x,y){if(x==null){active=false;}else{active=true;tx=x;ty=Math.max(0.22,Math.min(0.78,y-0.15));}}; /* 悬在掌心上方 */
   window.__floatEnabled=function(){return camLive&&active;};
-  /* 贺卡 3D 倾斜：指针悬停 / 掌心位置驱动 */
-  window.__cardTilt=function(x,y){
-    var c=document.querySelector("#packLayer .card3d");if(!c)return;
-    c.style.setProperty("--try",((x-0.5)*16).toFixed(1)+"deg");
-    c.style.setProperty("--trx",((0.5-y)*11).toFixed(1)+"deg");
-  };
-  addEventListener("pointermove",function(e){
-    var c=document.querySelector("#packLayer .card3d");if(!c)return;
-    var r=c.getBoundingClientRect();if(!r.width)return;
-    var x=(e.clientX-(r.left+r.width/2))/r.width, y=(e.clientY-(r.top+r.height/2))/r.height;
-    if(Math.abs(x)<1.2&&Math.abs(y)<1.2){
-      c.style.setProperty("--try",(Math.max(-1,Math.min(1,x))*9).toFixed(1)+"deg");
-      c.style.setProperty("--trx",(Math.max(-1,Math.min(1,y))*-7).toFixed(1)+"deg");
-    }
-  },{passive:true});
   (function loop(){
     fx+=(tx-fx)*0.14;fy+=(ty-fy)*0.14;
-    var trx2=held?(0.5-fy)*26:0, try2=held?(fx-0.5)*36:0;
-    hrx+=(trx2-hrx)*0.12;hry+=(try2-hry)*0.12;
     var w=document.querySelector("#packLayer .packwrap")||document.querySelector("#packLayer .cardwrap");
     if(w){
       if(window.__floatEnabled()){
         if(!w.__base){var r0=w.getBoundingClientRect();w.__base={cx:r0.left+r0.width/2,cy:r0.top+r0.height/2};}
         var dx=fx*innerWidth-w.__base.cx, dy=fy*innerHeight-w.__base.cy;
-        var isPack=w.classList.contains("packwrap");
-        var t3=isPack?(" rotateY("+hry.toFixed(1)+"deg) rotateX("+hrx.toFixed(1)+"deg) scale("+(held?1.07:1)+")"):"";
-        w.style.transform="translate("+(dx*0.9).toFixed(1)+"px,"+(dy*0.9).toFixed(1)+"px)"+t3;
-        if(isPack){w.classList.add("noloop");w.classList.toggle("held",held);}
+        w.style.transform="translate("+(dx*0.9).toFixed(1)+"px,"+(dy*0.9).toFixed(1)+"px)";
+        if(w.classList.contains("packwrap"))w.classList.add("noloop");
       }else if(w.style.transform||w.classList.contains("noloop")){
         w.style.transform="";w.__base=null;
-        w.classList.remove("noloop");if(w.classList.contains("packwrap"))w.classList.remove("held");
+        w.classList.remove("noloop");
       }
     }
     requestAnimationFrame(loop);
@@ -1651,7 +1631,7 @@ function setGest(mode){
     else text.textContent="🌠 点夜空放烟花 · 点 ✋ 开启手势识别";
     return;
   }
-  if(mode==="pack"){icon.textContent="🖐";text.textContent="张掌 = 托住卡包 · 握拳 = 抓住倾斜 · 另一只手捏住向外拉 = 撕开";}
+  if(mode==="pack"){icon.textContent="🖐";text.textContent="一只手掌心向上托住 · 另一只手捏住，慢慢向外拉 = 撕多少你说了算";}
   else if(mode==="tearing"){icon.textContent="✨";text.textContent="继续……就要撕开了！";}
   else if(mode==="card"){icon.textContent="✌️";text.textContent="比耶 = 翻贺卡 · 👍 按住 = 蓄力许愿 · ☝️ = 指尖烟花 · ✊ = 摇雪";}
   else if(mode==="locked"){icon.textContent="👋";text.textContent="这一夜在封印中 · 左右挥手切换";}
@@ -2274,9 +2254,7 @@ async function start(){
         const gh=gests[hi]&&gests[hi][0]?gests[hi][0].categoryName:"";      /* 托手的手势 */
         const go=gests[1-hi]&&gests[1-hi][0]?gests[1-hi][0].categoryName:""; /* 另一只手 */
         window.__palm(px,py,gh==="Closed_Fist");
-        window.__palmFloat&&window.__palmFloat(px,py,gh==="Closed_Fist"); /* 张掌=托住 · 握拳=抓住并 3D 倾斜 */
-        if(gh==="Closed_Fist"&&!trayHeld)toastMsg("抓住了 ✊ 移动手调整角度");
-        trayHeld=gh==="Closed_Fist";
+        window.__palmFloat&&window.__palmFloat(px,py);
         if(hands[1])window.__palm2(1-hands[1-hi][9].x,hands[1-hi][9].y);
         else window.__palm2(null);
         /* 挥手：150ms 窗口速度 */
