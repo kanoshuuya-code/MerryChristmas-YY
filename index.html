@@ -59,15 +59,16 @@ canvas{display:block}
   55%{transform:translateY(-4vh) rotate(3.5deg) scale(1.05);opacity:1}
   75%{transform:translateY(1vh) rotate(-1.2deg) scale(.985)}
   100%{transform:none;opacity:1}}
-.pack{position:relative;width:min(66vw,240px);aspect-ratio:5/7;--tp:0}
+.pack{position:relative;width:min(74vw,300px);aspect-ratio:5/7;--tp:0;transform-style:preserve-3d;
+  filter:drop-shadow(0 26px 34px rgba(0,0,0,.5))}
 /* 追踪线框：像 TouchDesigner 那样把卡包「框」在手上 */
-.trackbox{position:absolute;inset:-16px;border:1.5px solid rgba(255,215,128,.42);pointer-events:none;z-index:6;transition:border-color .25s,box-shadow .25s}
+.trackbox{position:absolute;inset:-16px;border:1.5px solid rgba(255,215,128,.42);pointer-events:none;z-index:6;transition:border-color .25s,box-shadow .25s;transform:translateZ(28px)}
 .trackbox span{position:absolute;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:#ffe3a6;box-shadow:0 0 8px rgba(255,210,120,.8);transition:.25s}
 .trackbox span:nth-child(1){left:0;top:0}.trackbox span:nth-child(2){right:0;top:0}
 .trackbox span:nth-child(3){left:0;bottom:0}.trackbox span:nth-child(4){right:0;bottom:0}
 .packwrap.gripping .trackbox{border-color:rgba(255,175,85,.95);box-shadow:0 0 26px rgba(255,190,90,.28),inset 0 0 22px rgba(255,190,90,.12)}
 .packwrap.gripping .trackbox span{background:#ff9d6a;box-shadow:0 0 12px rgba(255,150,80,.95);width:12px;height:12px;margin:-6px}
-.pack .rays{position:absolute;left:50%;top:50%;width:340%;height:340%;transform:translate(-50%,-50%);
+.pack .rays{position:absolute;left:50%;top:50%;width:340%;height:340%;transform:translate(-50%,-50%) translateZ(-60px);
   background:conic-gradient(from 0deg,
     rgba(255,120,120,.0) 0deg, rgba(255,120,120,.35) 12deg, rgba(255,220,120,.0) 24deg,
     rgba(255,220,120,.35) 36deg, rgba(140,255,170,.0) 48deg, rgba(140,255,170,.3) 60deg,
@@ -86,9 +87,9 @@ canvas{display:block}
 .pack-half{position:absolute;left:0;width:100%;overflow:hidden;
   transition:transform .12s linear, opacity .5s}
 .pack-top{top:0;height:50.5%;clip-path:polygon(0 0,100% 0,100% 88%,92% 100%,84% 88%,76% 100%,68% 88%,60% 100%,52% 88%,44% 100%,36% 88%,28% 100%,20% 88%,12% 100%,4% 88%,0 100%);
-  transform:translate(calc(var(--tp)*-34%), calc(var(--tp)*-46%)) rotate(calc(var(--tp)*-14deg))}
+  transform:translate(calc(var(--tp)*-34%), calc(var(--tp)*-46%)) rotate(calc(var(--tp)*-14deg)) translateZ(12px)}
 .pack-bot{bottom:0;height:50.5%;clip-path:polygon(0 12%,4% 0,12% 12%,20% 0,28% 12%,36% 0,44% 12%,52% 0,60% 12%,68% 0,76% 12%,84% 0,92% 12%,100% 0,100% 100%,0 100%);
-  transform:translate(calc(var(--tp)*34%), calc(var(--tp)*46%)) rotate(calc(var(--tp)*14deg))}
+  transform:translate(calc(var(--tp)*34%), calc(var(--tp)*46%)) rotate(calc(var(--tp)*14deg)) translateZ(12px)}
 .pack.ripped .pack-top{transform:translate(-130%,-160%) rotate(-32deg);opacity:0;transition:transform .8s cubic(.2,.7,.3,1),opacity .8s}
 .pack.ripped .pack-bot{transform:translate(130%,160%) rotate(30deg);opacity:0;transition:transform .8s cubic(.2,.7,.3,1),opacity .8s}
 .pskin{position:absolute;inset:0;
@@ -430,7 +431,7 @@ canvas{display:block}
     <div class="ec-t4">🎵 音乐会自己响起 · 进入后自动开启手势识别</div>
   </div>
   <div class="ec-foot">DEC 19 — 25 · 2026 · 七 个 夜 晚</div>
-  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v14.2 · 1125</div>
+  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v14.3 · 1125</div>
 </div>
 
 <!-- 手势教学 -->
@@ -1131,7 +1132,7 @@ function tearLive(p){
   var el=$("packEl");if(!el||el.classList.contains("ripped"))return;
   p=Math.max(0,Math.min(1,p));
   el.style.setProperty("--tp",p.toFixed(3));
-  if(p>=0.72)completeTear(cur);
+  if(p>=0.64)completeTear(cur);
 }
 var tearState={p:0,decay:null};
 var tornThisSession={}; /* 本次会话里已撕开的夜：贺卡页可「再撕一次」重置它 */
@@ -1602,12 +1603,12 @@ addEventListener("resize",function(){setTimeout(moveLens,60);});
   window.__floatEnabled=function(){return camLive&&active;};
   (function loop(){
     fx+=(tx-fx)*0.1;fy+=(ty-fy)*0.1;
-    var target=window.__floatEnabled()?1.16:1;
+    var target=window.__floatEnabled()?1.3:1;
     sc+=(target-sc)*0.09;
     var w=document.querySelector("#packLayer .packwrap");
     if(w){
       if(window.__floatEnabled()||sc>1.005){
-        var ry=(fx-0.5)*24*sc, rx=(0.5-fy)*15*sc;
+        var ry=(fx-0.5)*34*sc, rx=(0.5-fy)*22*sc;
         w.style.transform="scale("+sc.toFixed(3)+") rotateY("+ry.toFixed(1)+"deg) rotateX("+rx.toFixed(1)+"deg)";
         w.classList.add("noloop");
       }else if(w.style.transform||w.classList.contains("noloop")){
@@ -2310,15 +2311,15 @@ async function start(){
           }
           /* 捏住时：进度绝对跟随手——拉多远撕多远，慢拉就慢撕，完全可控 */
           if(gripping){
-            const p=gripBase+Math.abs(ax-gripStartX)/0.26;
+            const p=gripBase+Math.abs(ax-gripStartX)/0.17;
             window.__tearPull&&window.__tearPull(p);
           }
           /* 兜底：撕手快速向外一挥也撕一大口 */
           if(tearPrevX!=null&&now-tearPrevT>0){
             const vx=(ax-tearPrevX)/((now-tearPrevT)||16);
-            if(Math.abs(vx)>0.0011&&now-lastRip>260){
+            if(Math.abs(vx)>0.0007&&now-lastRip>260){
               lastRip=now;
-              window.__tearStep&&window.__tearStep(0.3);
+              window.__tearStep&&window.__tearStep(0.4);
               toastMsg("嘶啦 ✦");
               const r2=document.getElementById("palmRing2");
               if(r2){r2.classList.add("rip");setTimeout(function(){r2.classList.remove("rip");},300);}
