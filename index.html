@@ -243,6 +243,18 @@ canvas{display:block}
   transform:translate(-50%,-50%);display:none;transition:width .2s,height .2s}
 .palmRing.fist{border-color:#e88a7a;box-shadow:0 0 18px rgba(232,138,122,.7)}
 
+/* 闪卡照片查看层 */
+#photoOverlay{position:fixed;inset:0;z-index:96;background:rgba(6,10,20,.9);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center}
+#photoOverlay.hidden{display:none}
+#photoCard{background:#fdf8ec;border-radius:16px;padding:16px 16px 12px;box-shadow:0 30px 80px rgba(0,0,0,.65),0 0 0 1px rgba(255,220,150,.4);transform:rotate(-1.5deg);max-width:min(86vw,560px);animation:photopop .55s cubic-bezier(.2,.8,.3,1.2) both;cursor:pointer}
+@keyframes photopop{from{opacity:0;transform:rotate(-1.5deg) translateY(34px) scale(.82)}to{opacity:1;transform:rotate(-1.5deg) translateY(0) scale(1)}}
+#photoImg{display:block;max-width:calc(min(86vw,560px) - 32px);max-height:60vh;border-radius:10px;object-fit:contain;background:#ece2c8}
+#photoCap{margin-top:12px;text-align:center;color:#6a5638;font:600 15px "Noto Serif SC",serif;letter-spacing:2px}
+#photoX{position:fixed;top:18px;right:20px;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,220,150,.5);color:#ffe3a6;font-size:17px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(20,28,48,.6);transition:.3s}#photoX:hover{background:rgba(120,90,30,.6);transform:rotate(90deg)}
+.tk-photo{cursor:zoom-in}
+.retear{margin-top:14px;display:inline-block;padding:8px 18px;border-radius:999px;border:1px dashed rgba(255,215,130,.55);color:#ffe3a6;font:600 13px "Noto Serif SC",serif;letter-spacing:3px;cursor:pointer;background:rgba(30,22,12,.35);transition:.3s;user-select:none}
+.retear:hover{background:rgba(184,134,59,.35);transform:translateY(-2px)}
+
 /* ═══ 封面 ═══ */
 #entryCover{position:fixed;inset:0;z-index:60;cursor:pointer;overflow:hidden;background:var(--night)}
 #coverWorld{position:absolute;inset:0;transform-origin:50% 46%;
@@ -380,6 +392,7 @@ canvas{display:block}
   <video id="camPrev" muted playsinline></video>
   <div class="palmRing" id="palmRing"></div>
   <div class="palmRing" id="palmRing2"></div>
+  <div id="photoOverlay" class="hidden"><div id="photoX">✕</div><div id="photoCard"><img id="photoImg" alt="礼物照片"><div id="photoCap"></div></div></div>
 </main>
 
 <!-- 封面 -->
@@ -393,7 +406,7 @@ canvas{display:block}
     <div class="ec-t4">🎵 音乐会自己响起 · 进入后自动开启手势识别</div>
   </div>
   <div class="ec-foot">DEC 19 — 25 · 2026 · 七 个 夜 晚</div>
-  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v9.7 · 1125</div>
+  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v9.8 · 1125</div>
 </div>
 
 <!-- 手势教学 -->
@@ -401,7 +414,7 @@ canvas{display:block}
   <div class="tut">
     <h3>星光之手</h3>
     <div class="tsub">HAND GESTURES · 也可以只用鼠标 / 手指</div>
-    <div class="tutrow"><div class="ti">🖐</div><div class="tt">伸出一只手，卡包会浮到你的掌心上方<small>另一只手 ✊ 握拳 = 抓住包装一角，保持握拳向外拉 —— 撕开它，松手会弹回去</small></div></div>
+    <div class="tutrow"><div class="ti">🖐</div><div class="tt">伸出一只手，卡包会浮到你的掌心上方<small>另一只手 ✊ 握拳 = 抓住包装向外拉（松手弹回）· ☝️ 快速横划 = 划开一道口子</small></div></div>
     <div class="tutrow"><div class="ti">👋</div><div class="tt">向左 / 向右挥手<small>切换前一天 / 后一天</small></div></div>
     <div class="tutrow"><div class="ti">✌️</div><div class="tt">比耶，或另一只手张开<small>翻开贺卡读信</small></div></div>
     <div class="tutrow"><div class="ti">✊</div><div class="tt">握拳摇一摇<small>晃动水晶球，下一场雪</small></div></div>
@@ -1053,13 +1066,14 @@ function tearLive(p){
   if(p>=0.72)completeTear(cur);
 }
 var tearState={p:0,decay:null};
+var tornThisSession={}; /* 本次会话里已撕开的夜：贺卡页可「再撕一次」重置它 */
 window.__tearStep=function(d){ /* 手势调这里：d>0 增加进度 */
-  if(opened.indexOf(cur)>=0||!isUnlocked(cur))return;
+  if(tornThisSession[cur]||!isUnlocked(cur))return;
   tearState.p=Math.min(1,Math.max(0,tearState.p+d));
   tearLive(tearState.p);
 };
-window.__tearPull=function(p){ /* 双手对拉的绝对进度（0~1），松手回弹 */
-  if(opened.indexOf(cur)>=0||!isUnlocked(cur))return;
+window.__tearPull=function(p){ /* 抓握外拉的绝对进度（0~1），松手回弹 */
+  if(tornThisSession[cur]||!isUnlocked(cur))return;
   tearState.p=Math.min(1,Math.max(0,p));
   tearLive(tearState.p);
 };
@@ -1067,6 +1081,7 @@ function completeTear(i){
   var el=$("packEl");
   if(el&&el.classList.contains("ripped"))return;
   tearState.p=0;
+  tornThisSession[i]=true;
   markOpened(i);
   confettiBurst(innerWidth/2,innerHeight*0.45,120);
   setTimeout(function(){confettiBurst(innerWidth*0.3,innerHeight*0.5,60);
@@ -1079,7 +1094,7 @@ function bindPack(){
   var el=$("packEl");if(!el||el.classList.contains("locked"))return;
   var startX=null,moved=0;
   el.addEventListener("pointerdown",function(e){
-    if(opened.indexOf(cur)>=0)return;
+    if(tornThisSession[cur])return;
     startX=e.clientX;moved=0;el.setPointerCapture&&el.setPointerCapture(e.pointerId);
   });
   el.addEventListener("pointermove",function(e){
@@ -1090,7 +1105,7 @@ function bindPack(){
   });
   function up(){
     if(startX==null)return;startX=null;
-    if(opened.indexOf(cur)<0){tearState.p=0;tearLive(0);}
+    if(!tornThisSession[cur]){tearState.p=0;tearLive(0);}
   }
   el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up);
   /* 双指撕开 */
@@ -1131,7 +1146,7 @@ function renderStage(){
     setGest("locked");
     return;
   }
-  if(opened.indexOf(i)<0){
+  if(!tornThisSession[i]){
     layer.innerHTML=
       '<div class="packwrap">'+
         '<div class="pack" id="packEl" style="--tp:0">'+
@@ -1191,13 +1206,21 @@ function renderStage(){
             '<div class="tk-date">'+esc(b.date)+'</div>'+
             '<div class="seal">悦</div>'+
           '</div>'+
-          '<div class="tip">轻 触 卡 面 · 翻 开 它 · ✌️</div>'+
+          '<div class="tip">轻触翻开 · 点照片看大图 · ✌️ 翻卡</div>'+
         '</div>'+
       '</div>'+
+      '<div class="retear" id="reTearBtn">↺ 再撕一次卡包</div>'+
     '</div>';
   setGest("card");
   var cf=$("cfaceEl");
   cf.addEventListener("click",function(){$("cardEl").classList.toggle("open");});
+  var tkp=cf.querySelector?cf.querySelector(".tk-photo"):null;
+  if(tkp)tkp.addEventListener("click",function(e){e.stopPropagation();openPhoto(cur);});
+  var rt=$("reTearBtn");
+  if(rt)rt.addEventListener("click",function(){
+    tornThisSession[cur]=false;tearState.p=0;
+    renderStage();toastMsg("卡包回来了 · 再撕一次 🎁");
+  });
   if(i<=5){
     var gi=i;
     $("gBtn"+gi).addEventListener("click",function(){tryGuess(gi);});
@@ -1208,6 +1231,23 @@ function renderStage(){
 window.__flipCard=function(){
   var c=$("cardEl");if(c)c.classList.toggle("open");
 };
+
+/* ═══ 闪卡照片查看层 ═══ */
+function openPhoto(i){
+  var ov=$("photoOverlay");if(!ov)return;
+  var ph=photoFor(i);
+  var im=$("photoImg");
+  im.onerror=function(){
+    ov.classList.add("hidden");
+    toastMsg("这一夜的照片还没放进去 · 管理面板可以上传 📷");
+  };
+  im.src=ph||("photo"+(i+1)+".jpg");
+  $("photoCap").textContent="NIGHT "+ROMAN[i]+" · "+(BOXES[i].title.split("·")[1]||BOXES[i].title);
+  ov.classList.remove("hidden");
+}
+$("photoX").addEventListener("click",function(){$("photoOverlay").classList.add("hidden");});
+$("photoOverlay").addEventListener("click",function(e){if(e.target===this)this.classList.add("hidden");});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){var ov=$("photoOverlay");if(ov)ov.classList.add("hidden");}});
 
 /* 贺卡封面水彩插画（内联 SVG） */
 var ILLU=[
@@ -1518,7 +1558,7 @@ function setGest(mode){
     else text.textContent="🌠 点夜空放烟花 · 点 ✋ 开启手势识别";
     return;
   }
-  if(mode==="pack"){icon.textContent="🖐";text.textContent="一只手托住卡包 · 另一只手 ✊ 握拳抓住包装，向外拉 = 撕开";}
+  if(mode==="pack"){icon.textContent="🖐";text.textContent="一只手托住卡包 · 另一只手 ✊ 抓住外拉 / ☝️ 横划 = 撕开";}
   else if(mode==="tearing"){icon.textContent="✨";text.textContent="继续……就要撕开了！";}
   else if(mode==="card"){icon.textContent="✌️";text.textContent="比耶 = 翻贺卡 · 👍 按住 = 蓄力许愿 · ☝️ = 指尖烟花 · ✊ = 摇雪";}
   else if(mode==="locked"){icon.textContent="👋";text.textContent="这一夜在封印中 · 左右挥手切换";}
@@ -1690,7 +1730,8 @@ $("abDev").addEventListener("click",function(){
 $("abClearOpened").addEventListener("click",function(){
   opened=[];saveJSON("xmas_opened",opened);
   localStorage.removeItem("xmas_prizes");prizes=[];
-  renderAll();toastMsg("拆包记录已清空");
+  tornThisSession={};
+  renderAll();toastMsg("拆包记录已清空 · 七只卡包都回来了");
 });
 $("abReset").addEventListener("click",function(){
   ["xmas_boxes","xmas_guess","xmas_wheel","xmas_egg","xmas_letter"].forEach(function(k){localStorage.removeItem(k);});
@@ -1990,7 +2031,7 @@ $("tutOk").addEventListener("click",function(){
 /* ═══ 手势钩子（module 调用） ═══ */
 window.__gestureReady=function(){
   camLive=true;$("camPrev").style.display="block";
-  setGest(opened.indexOf(cur)>=0?"card":(isUnlocked(cur)?"pack":"locked"));
+  setGest(tornThisSession[cur]?"card":(isUnlocked(cur)?"pack":"locked"));
   $("camBtn").classList.remove("off");
 };
 window.__gestureFail=function(){
@@ -2097,7 +2138,7 @@ async function start(){
     await video.play();await prev.play().catch(()=>{});
     window.__gestureReady();
     let lastT=0,palmHist=[],lastSwipe=0,lastWish=0,openHold=0,lastFlip=0,lastShake=0,lastPoint=0;
-    let grabActive=false,grabX=0,grabPulling=false,wishHold=false;
+    let grabActive=false,grabX=0,grabPulling=false,wishHold=false,slashX=null,lastSlash=0;
     function loop(){
       requestAnimationFrame(loop);
       const now=performance.now();
@@ -2153,22 +2194,32 @@ async function start(){
           window.__spawnFirework&&window.__spawnFirework(px,py,null);
           toastMsg("指尖烟花 ✦");
         }
+        /* ✊ 另一只手握拳 = 抓住包装一角，保持握拳向外拉 = 撕开（拉多少撕多少）；松拳 = 放手弹回 */
+        const ao=hands[1-hi];
+        if(hands.length===2&&ao&&go==="Closed_Fist"){
+          const ax=1-ao[9].x;
+          if(!grabActive){grabActive=true;grabX=ax;}
+          const p=Math.abs(ax-grabX)/0.24;
+          if(p>0.01){grabPulling=true;window.__tearPull&&window.__tearPull(p);}
+        }else if(grabActive){
+          grabActive=false;
+          if(grabPulling){grabPulling=false;window.__tearPull&&window.__tearPull(0);}
+        }
+        /* ☝️ 另一只手快速横划 = 给包装划开一道口子（每次 +22%） */
+        if(hands.length===2&&ao&&go==="Pointing_Up"){
+          const sx=1-ao[9].x;
+          if(slashX!=null&&Math.abs(sx-slashX)>0.13&&now-lastSlash>450){
+            lastSlash=now;window.__tearStep&&window.__tearStep(0.22);toastMsg("嘶啦 —— 划开一道 ✦");
+          }
+          slashX=sx;
+        }else slashX=null;
       }else{
         window.__palm(null);window.__palm2(null);
         window.__palmFloat&&window.__palmFloat(null);
         if(wishHold){wishHold=false;window.__wishRelease&&window.__wishRelease();}
-        openHold=0;palmHist=[];
-      }
-      /* 另一只手 ✊ 握拳 = 抓住包装一角，保持握拳向外拉 = 撕开（拉多少撕多少）；松拳 = 放手，没撕够会弹回去 */
-      const ao=hands[1-hi];
-      if(hands.length===2&&ao&&go==="Closed_Fist"){
-        const ax=1-ao[9].x;
-        if(!grabActive){grabActive=true;grabX=ax;}
-        const p=Math.abs(ax-grabX)/0.24;
-        if(p>0.01){grabPulling=true;window.__tearPull&&window.__tearPull(p);}
-      }else if(grabActive){
-        grabActive=false;
-        if(grabPulling){grabPulling=false;window.__tearPull&&window.__tearPull(0);}
+        openHold=0;palmHist=[];slashX=null;
+        if(grabActive){grabActive=false;
+          if(grabPulling){grabPulling=false;window.__tearPull&&window.__tearPull(0);}}
       }
     }
     loop();
