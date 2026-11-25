@@ -430,7 +430,7 @@ canvas{display:block}
     <div class="ec-t4">🎵 音乐会自己响起 · 进入后自动开启手势识别</div>
   </div>
   <div class="ec-foot">DEC 19 — 25 · 2026 · 七 个 夜 晚</div>
-  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v14.1 · 1125</div>
+  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v14.2 · 1125</div>
 </div>
 
 <!-- 手势教学 -->
@@ -438,7 +438,7 @@ canvas{display:block}
   <div class="tut">
     <h3>星光之手</h3>
     <div class="tsub">HAND GESTURES · 也可以只用鼠标 / 手指</div>
-    <div class="tutrow"><div class="ti">🖐</div><div class="tt">一只手掌心向上张开，线框卡包会浮到掌心上方<small>另一只手拇指+食指捏合（线框变亮=捏住了），慢慢向外拉 —— 拉多远撕多远，进度完全跟手</small></div></div>
+    <div class="tutrow"><div class="ti">🖐</div><div class="tt">张开一只手，卡包会原地变大、立起来给你看<small>另一只手拇指+食指捏合（线框变亮=捏住了），慢慢向外拉 —— 拉多远撕多远，进度完全跟手</small></div></div>
     <div class="tutrow"><div class="ti">👋</div><div class="tt">向左 / 向右挥手<small>切换前一天 / 后一天</small></div></div>
     <div class="tutrow"><div class="ti">✌️</div><div class="tt">比耶，或另一只手张开<small>翻开贺卡读信</small></div></div>
     <div class="tutrow"><div class="ti">✊</div><div class="tt">握拳摇一摇<small>晃动水晶球，下一场雪</small></div></div>
@@ -1595,23 +1595,23 @@ addEventListener("resize",function(){setTimeout(moveLens,60);});
   addEventListener("pointerup",skyUp,{passive:true});
   addEventListener("pointercancel",function(){if(holdTm){clearTimeout(holdTm);holdTm=null;}if(holding){holding=false;window.__wishRelease&&window.__wishRelease();}},{passive:true});
 })();
-/* ═══ 掌心浮卡：卡包/贺卡跟随手掌 ═══ */
+/* ═══ 掌心展示：张掌时卡包原地放大 + 3D 倾斜 ═══ */
 (function(){
-  var fx=0.5,fy=0.55,tx=0.5,ty=0.55,active=false;
-  window.__palmFloat=function(x,y){if(x==null){active=false;}else{active=true;tx=x;ty=Math.max(0.22,Math.min(0.78,y-0.15));}}; /* 悬在掌心上方 */
+  var fx=0.5,fy=0.5,tx=0.5,ty=0.5,active=false,sc=1;
+  window.__palmFloat=function(x,y){if(x==null){active=false;}else{active=true;tx=x;ty=y;}};
   window.__floatEnabled=function(){return camLive&&active;};
   (function loop(){
-    fx+=(tx-fx)*0.14;fy+=(ty-fy)*0.14;
-    var w=document.querySelector("#packLayer .packwrap")||document.querySelector("#packLayer .cardwrap");
+    fx+=(tx-fx)*0.1;fy+=(ty-fy)*0.1;
+    var target=window.__floatEnabled()?1.16:1;
+    sc+=(target-sc)*0.09;
+    var w=document.querySelector("#packLayer .packwrap");
     if(w){
-      if(window.__floatEnabled()){
-        if(!w.__base){var r0=w.getBoundingClientRect();w.__base={cx:r0.left+r0.width/2,cy:r0.top+r0.height/2};}
-        var dx=fx*innerWidth-w.__base.cx, dy=fy*innerHeight-w.__base.cy;
-        w.style.transform="translate("+(dx*0.9).toFixed(1)+"px,"+(dy*0.9).toFixed(1)+"px)";
-        if(w.classList.contains("packwrap"))w.classList.add("noloop");
+      if(window.__floatEnabled()||sc>1.005){
+        var ry=(fx-0.5)*24*sc, rx=(0.5-fy)*15*sc;
+        w.style.transform="scale("+sc.toFixed(3)+") rotateY("+ry.toFixed(1)+"deg) rotateX("+rx.toFixed(1)+"deg)";
+        w.classList.add("noloop");
       }else if(w.style.transform||w.classList.contains("noloop")){
-        w.style.transform="";w.__base=null;
-        w.classList.remove("noloop");
+        w.style.transform="";w.classList.remove("noloop");
       }
     }
     requestAnimationFrame(loop);
@@ -1631,7 +1631,7 @@ function setGest(mode){
     else text.textContent="🌠 点夜空放烟花 · 点 ✋ 开启手势识别";
     return;
   }
-  if(mode==="pack"){icon.textContent="🖐";text.textContent="一只手掌心向上托住 · 另一只手捏住，慢慢向外拉 = 撕多少你说了算";}
+  if(mode==="pack"){icon.textContent="🖐";text.textContent="张掌 = 卡包变大立起来 · 另一只手捏住，慢慢向外拉 = 撕开";}
   else if(mode==="tearing"){icon.textContent="✨";text.textContent="继续……就要撕开了！";}
   else if(mode==="card"){icon.textContent="✌️";text.textContent="比耶 = 翻贺卡 · 👍 按住 = 蓄力许愿 · ☝️ = 指尖烟花 · ✊ = 摇雪";}
   else if(mode==="locked"){icon.textContent="👋";text.textContent="这一夜在封印中 · 左右挥手切换";}
