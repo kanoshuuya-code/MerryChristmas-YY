@@ -242,6 +242,8 @@ canvas{display:block}
   border:2px solid rgba(246,220,154,.9);box-shadow:0 0 18px rgba(232,201,122,.7), inset 0 0 12px rgba(232,201,122,.4);
   transform:translate(-50%,-50%);display:none;transition:width .2s,height .2s}
 .palmRing.fist{border-color:#e88a7a;box-shadow:0 0 18px rgba(232,138,122,.7)}
+.palmRing.rip{border-color:#ffd98f;box-shadow:0 0 26px rgba(255,200,90,.9);transform:translate(-50%,-50%) scale(1.45);transition:transform .12s}
+.palmRing.grip{border-color:#e88a7a;box-shadow:0 0 20px rgba(232,138,122,.85);transform:translate(-50%,-50%) scale(.75);transition:transform .15s}
 
 /* 闪卡照片查看层 */
 #photoOverlay{position:fixed;inset:0;z-index:96;background:rgba(6,10,20,.9);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center}
@@ -406,7 +408,7 @@ canvas{display:block}
     <div class="ec-t4">🎵 音乐会自己响起 · 进入后自动开启手势识别</div>
   </div>
   <div class="ec-foot">DEC 19 — 25 · 2026 · 七 个 夜 晚</div>
-  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v10.1 · 1125</div>
+  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v12.0 · 1125</div>
 </div>
 
 <!-- 手势教学 -->
@@ -414,7 +416,7 @@ canvas{display:block}
   <div class="tut">
     <h3>星光之手</h3>
     <div class="tsub">HAND GESTURES · 也可以只用鼠标 / 手指</div>
-    <div class="tutrow"><div class="ti">🖐</div><div class="tt">伸出一只手，卡包会浮到掌心上方托着<small>再伸出另一只手 —— 两只手向外拉开，卡包就撕开（不用摆任何手势，拉就对了）</small></div></div>
+    <div class="tutrow"><div class="ti">🖐</div><div class="tt">一只手掌心向上张开，卡包会浮到掌心上方托着<small>另一只手拇指+食指捏合（像捏起包装角），捏住后向外拉 = 撕开 · 松开不丢进度，可以分几次拉</small></div></div>
     <div class="tutrow"><div class="ti">👋</div><div class="tt">向左 / 向右挥手<small>切换前一天 / 后一天</small></div></div>
     <div class="tutrow"><div class="ti">✌️</div><div class="tt">比耶，或另一只手张开<small>翻开贺卡读信</small></div></div>
     <div class="tutrow"><div class="ti">✊</div><div class="tt">握拳摇一摇<small>晃动水晶球，下一场雪</small></div></div>
@@ -1558,7 +1560,7 @@ function setGest(mode){
     else text.textContent="🌠 点夜空放烟花 · 点 ✋ 开启手势识别";
     return;
   }
-  if(mode==="pack"){icon.textContent="🖐";text.textContent="一手托住卡包 · 再伸一只手，两手拉开 = 撕开";}
+  if(mode==="pack"){icon.textContent="🖐";text.textContent="一只手掌心向上托住 · 另一只手捏合后向外拉 = 撕开";}
   else if(mode==="tearing"){icon.textContent="✨";text.textContent="继续……就要撕开了！";}
   else if(mode==="card"){icon.textContent="✌️";text.textContent="比耶 = 翻贺卡 · 👍 按住 = 蓄力许愿 · ☝️ = 指尖烟花 · ✊ = 摇雪";}
   else if(mode==="locked"){icon.textContent="👋";text.textContent="这一夜在封印中 · 左右挥手切换";}
@@ -2039,9 +2041,9 @@ window.__gestureFail=function(){
   $("camBtn").classList.add("off");
 };
 window.__swipe=function(dir){
-  /* 卡包在面前时：快速挥手 = 直接撕一大口；否则才是切换夜 */
-  if($("packEl")&&!tornThisSession[cur]&&isUnlocked(cur)){window.__tearStep(0.34);toastMsg("嘶啦 ✦");}
-  else selectDay(cur+dir);
+  /* 卡包在面前时挥手不翻页——撕包必须用双手捏拉 */
+  if($("packEl")&&!tornThisSession[cur]&&isUnlocked(cur))return;
+  selectDay(cur+dir);
 };
 window.__packLive=function(){return !!($("packEl")&&!tornThisSession[cur]&&isUnlocked(cur));};
 window.__wish=doWish;
@@ -2146,8 +2148,15 @@ async function start(){
     video.srcObject=stream;prev.srcObject=stream;
     await video.play();await prev.play().catch(()=>{});
     window.__gestureReady();
-    let lastT=0,palmHist=[],lastSwipe=0,lastWish=0,openHold=0,lastFlip=0,lastShake=0,lastPoint=0;
-    let wishHold=false,prevHandDist=null,twoSeen=false,oneHandSince=0,lastOneHint=0;
+    let lastT=0,palmHist=[],lastSwipe=0,lastWish=0,lastFlip=0,lastShake=0,lastPoint=0;
+    let wishHold=false,twoSeen=false,oneHandSince=0,lastOneHint=0;
+    let tearPrevX=null,tearPrevT=0,lastRip=0,gripping=false,pinchPrevX=null;
+    /* 捏合度：拇指尖(4)到食指尖(8)的距离 ÷ 手掌大小(腕0→中指根9)。捏东西≈0.2~0.35，张开≈1.0+ */
+    function pinchRatio(h){
+      const dx=h[4].x-h[8].x,dy=h[4].y-h[8].y;
+      const sx=h[0].x-h[9].x,sy=h[0].y-h[9].y;
+      return Math.hypot(dx,dy)/(Math.hypot(sx,sy)||1e-6);
+    }
     function loop(){
       requestAnimationFrame(loop);
       const now=performance.now();
@@ -2158,9 +2167,13 @@ async function start(){
       const gests=res.gestures||[];
       /* 掌心光标 + 挥手 */
       if(hands.length>0){
-        /* 位置低的那只手 = 托卡的手（像视频里：物体浮在掌心上方） */
-        let hi=0;
-        if(hands[1]&&hands[1][9].y>hands[0][9].y)hi=1;
+        /* 托盘手 = 掌心向上张开（Open_Palm）的那只；没人张掌就用位置低的 */
+        let hi=-1;
+        for(let k=0;k<hands.length;k++){
+          const gk=gests[k]&&gests[k][0]?gests[k][0].categoryName:"";
+          if(gk==="Open_Palm"){hi=k;break;}
+        }
+        if(hi<0){hi=0;if(hands[1]&&hands[1][9].y>hands[0][9].y)hi=1;}
         const lm=hands[hi];
         const px=1-lm[9].x,py=lm[9].y;
         const gh=gests[hi]&&gests[hi][0]?gests[hi][0].categoryName:"";      /* 托手的手势 */
@@ -2180,11 +2193,6 @@ async function start(){
             window.__swipe(dx>0?1:-1); /* 手往右=下一天（镜像后） */
           }
         }
-        /* 单手：张掌保持 = 缓撕（双手对拉见下方） */
-        if(gh==="Open_Palm"&&hands.length===1){
-          openHold++;
-          if(openHold>8)window.__tearStep(0.028);
-        }else openHold=0;
         if(gh==="Victory"&&now-lastFlip>1200){lastFlip=now;window.__flip();}
         /* 另一只手张开 = 翻卡 */
         if(go==="Open_Palm"&&now-lastFlip>1200){lastFlip=now;window.__flip();}
@@ -2203,25 +2211,51 @@ async function start(){
           window.__spawnFirework&&window.__spawnFirework(px,py,null);
           toastMsg("指尖烟花 ✦");
         }
-        /* ✊ 已废弃：不再依赖手势分类撕包 */
-        /* 双手联动（不看手势，纯距离）：一只手放低托卡，另一只手拉开 = 撕开。
-           距离每增加一点就撕一点，分几次拉也行，进度会累积，绝不回弹清零 */
+        /* 双手联动：托盘手张掌（掌心向上）托住卡包；另一只手「拇指+食指捏合」像捏起包装角，
+           捏住后向外（远离托盘手）拉 = 撕开，拉多少撕多少；松开手指进度保留，可以分几次拉 */
         if(hands.length===2){
-          if(!twoSeen){twoSeen=true;toastMsg("双手已就位 ✋✋ 向外拉开就能撕");}
+          if(!twoSeen){twoSeen=true;toastMsg("双手就位 ✋✋ 一只手张掌托住，另一只手捏住向外拉");}
           oneHandSince=0;
-          const a=hands[0][9],b=hands[1][9];
-          const d=Math.hypot(a.x-b.x,a.y-b.y);
-          if(prevHandDist!=null){
-            const dd=d-prevHandDist;
-            if(dd>0.001)window.__tearStep&&window.__tearStep(dd*2.6);
+          const ti=1-hi;
+          const th=hands[ti];
+          const ax=1-th[9].x;
+          const pr=pinchRatio(th);
+          /* 捏合判定带迟滞：0.38 捏住，0.52 才松开 */
+          if(!gripping&&pr<0.38){
+            gripping=true;
+            const r2=document.getElementById("palmRing2");if(r2)r2.classList.add("grip");
+            toastMsg("捏住了 🫳 向外拉");
+          }else if(gripping&&pr>0.52){
+            gripping=false;
+            const r2=document.getElementById("palmRing2");if(r2)r2.classList.remove("grip");
           }
-          prevHandDist=d;
-        }else{prevHandDist=null;twoSeen=false;
+          /* 捏住时：往远离托盘手的方向拉，拉多少撕多少 */
+          if(gripping&&pinchPrevX!=null){
+            const trayX=1-hands[hi][9].x;
+            const away=ax>=trayX?1:-1;
+            const dx=ax-pinchPrevX;
+            if(dx*away>0.0006)window.__tearStep&&window.__tearStep(Math.abs(dx)*3.4);
+          }
+          pinchPrevX=ax;
+          /* 兜底：撕手快速向外一挥也撕一大口 */
+          if(tearPrevX!=null&&now-tearPrevT>0){
+            const vx=(ax-tearPrevX)/((now-tearPrevT)||16);
+            if(Math.abs(vx)>0.0011&&now-lastRip>260){
+              lastRip=now;
+              window.__tearStep&&window.__tearStep(0.3);
+              toastMsg("嘶啦 ✦");
+              const r2=document.getElementById("palmRing2");
+              if(r2){r2.classList.add("rip");setTimeout(function(){r2.classList.remove("rip");},300);}
+            }
+          }
+          tearPrevX=ax;tearPrevT=now;
+        }else{gripping=false;pinchPrevX=null;tearPrevX=null;twoSeen=false;
+          const r2=document.getElementById("palmRing2");if(r2)r2.classList.remove("grip");
           /* 卡包在面前却只看到一只手：提醒把另一只手伸进来 */
           if(hands.length===1){
             if(!oneHandSince)oneHandSince=now;
             if(now-oneHandSince>1600&&now-lastOneHint>4500&&window.__packLive&&window.__packLive()){
-              lastOneHint=now;toastMsg("只看到一只手 · 把另一只手也伸进画面 ✋✋");
+              lastOneHint=now;toastMsg("只看到一只手 · 另一只手也伸进来，捏住包装向外拉 ✋✋");
             }
           }
         }
@@ -2229,7 +2263,7 @@ async function start(){
         window.__palm(null);window.__palm2(null);
         window.__palmFloat&&window.__palmFloat(null);
         if(wishHold){wishHold=false;window.__wishRelease&&window.__wishRelease();}
-        openHold=0;palmHist=[];prevHandDist=null;
+        palmHist=[];gripping=false;pinchPrevX=null;
       }
     }
     loop();
