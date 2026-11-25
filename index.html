@@ -47,7 +47,11 @@ canvas{display:block}
 #packLayer{position:fixed;inset:0;z-index:6;display:flex;align-items:flex-end;justify-content:center;
   padding-bottom:15vh;pointer-events:none}
 #packLayer>*{pointer-events:auto}
-.packwrap{position:relative;animation:floaty 3.6s ease-in-out infinite;cursor:grab}
+.packwrap{position:relative;animation:floaty 3.6s ease-in-out infinite;cursor:grab;transform-style:preserve-3d;will-change:transform}
+.packwrap.noloop{animation:none!important}
+.packwrap.held .trackbox{border-color:rgba(255,255,255,.95);
+  box-shadow:0 0 26px rgba(255,255,255,.55), inset 0 0 16px rgba(255,255,255,.25)}
+.packwrap.held .trackbox i{background:#fff;box-shadow:0 0 10px #fff}
 @keyframes floaty{0%,100%{transform:translateY(0) rotate(-1.2deg)}50%{transform:translateY(-12px) rotate(1.2deg)}}
 /* 闪卡亮相：撕开卡包后贺卡从下方飞出 */
 .cardwrap{animation:dealin .95s cubic(.2,.85,.25,1) both}
@@ -115,7 +119,8 @@ canvas{display:block}
 /* ═══ 3D 贺卡 ═══ */
 .cardwrap{perspective:1600px;animation:floaty 4s ease-in-out infinite}
 .card3d{position:relative;width:min(86vw,560px);height:min(76vh,720px);transform-style:preserve-3d;
-  transition:width .6s cubic(.3,.8,.3,1)}
+  transform:rotateY(var(--try,0deg)) rotateX(var(--trx,0deg));
+  transition:transform .22s ease-out, width .6s cubic(.3,.8,.3,1)}
 .card3d.open{width:min(94vw,1080px)}
 @media (max-width:900px){
   .card3d{width:min(92vw,560px)}
@@ -123,7 +128,7 @@ canvas{display:block}
   .cface{width:min(92vw,560px)}
   .card3d.open .cface{transform:rotateY(-180deg)}
 }
-.card3d.pop{animation:cardpop .9s cubic(.2,1.4,.35,1) both}
+.card3d.pop{animation:cardpop .9s cubic(.2,1.4,.35,1) backwards}
 @keyframes cardpop{0%{transform:rotateY(170deg) scale(.4);opacity:0}60%{opacity:1}100%{transform:rotateY(0) scale(1)}}
 .cface{position:absolute;top:0;bottom:0;right:0;width:min(86vw,560px);border-radius:10px;background:var(--paper);color:var(--ink);
   transform-origin:left center;transform-style:preserve-3d;cursor:pointer;overflow:hidden;
@@ -156,8 +161,19 @@ canvas{display:block}
   background:repeating-linear-gradient(90deg,#3a2e1e 0 2px,transparent 2px 4px,#3a2e1e 4px 7px,transparent 7px 10px,#3a2e1e 10px 11px,transparent 11px 14px)}
 .tk-date{font-family:"Cormorant Garamond",serif;font-size:10px;letter-spacing:2px;color:#8a6d3b}
 .photopv img{max-width:130px;border-radius:8px;margin-top:6px;box-shadow:0 3px 10px rgba(0,0,0,.25)}
-.cface .frame{position:absolute;inset:10px;border:2px solid #c9a24f;pointer-events:none}
-.cface .frame::after{content:"";position:absolute;inset:4px;border:1px solid #c9a24f}
+/* ═══ 闪卡金框：渐变金 + 内细线 + 四角金钻 ═══ */
+.cface .frame{position:absolute;inset:10px;pointer-events:none;transform:translateZ(12px);
+  border:2px solid transparent;
+  border-image:linear-gradient(135deg,#f6dc9a 0%,#b8863b 28%,#f8e6b0 50%,#b8863b 72%,#f6dc9a 100%) 1;
+  box-shadow:inset 0 0 16px rgba(246,220,154,.18)}
+.cface .frame::after{content:"";position:absolute;inset:4px;border:1px solid rgba(201,162,79,.55)}
+.cface .frame i{position:absolute;width:11px;height:11px;transform:rotate(45deg);
+  background:linear-gradient(135deg,#f8e6b0,#b8863b);
+  box-shadow:0 0 9px rgba(246,220,154,.75), inset 0 0 3px rgba(255,255,255,.7)}
+.cface .frame i:nth-child(1){left:-7.5px;top:-7.5px}
+.cface .frame i:nth-child(2){right:-7.5px;top:-7.5px}
+.cface .frame i:nth-child(3){left:-7.5px;bottom:-7.5px}
+.cface .frame i:nth-child(4){right:-7.5px;bottom:-7.5px}
 .cface .illu{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);width:72%}
 .cface .cf-title{position:absolute;left:0;right:0;bottom:58px;text-align:center;
   font-family:"Ma Shan Zheng",serif;font-size:34px;letter-spacing:8px;color:#3a2e1e}
@@ -415,7 +431,7 @@ canvas{display:block}
     <div class="ec-t4">🎵 音乐会自己响起 · 进入后自动开启手势识别</div>
   </div>
   <div class="ec-foot">DEC 19 — 25 · 2026 · 七 个 夜 晚</div>
-  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v13.0 · 1125</div>
+  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v14.0 · 1125</div>
 </div>
 
 <!-- 手势教学 -->
@@ -423,7 +439,7 @@ canvas{display:block}
   <div class="tut">
     <h3>星光之手</h3>
     <div class="tsub">HAND GESTURES · 也可以只用鼠标 / 手指</div>
-    <div class="tutrow"><div class="ti">🖐</div><div class="tt">一只手掌心向上张开，线框卡包会浮到掌心上方<small>另一只手拇指+食指捏合（线框变亮=捏住了），慢慢向外拉 —— 拉多远撕多远，进度完全跟手</small></div></div>
+    <div class="tutrow"><div class="ti">🖐</div><div class="tt">一只手掌心向上张开，线框卡包会浮到掌心上方<small>握拳 = 把卡包「抓」在手里，移动手它会跟着 3D 倾斜；另一只手拇指+食指捏合，慢慢向外拉 = 撕开</small></div></div>
     <div class="tutrow"><div class="ti">👋</div><div class="tt">向左 / 向右挥手<small>切换前一天 / 后一天</small></div></div>
     <div class="tutrow"><div class="ti">✌️</div><div class="tt">比耶，或另一只手张开<small>翻开贺卡读信</small></div></div>
     <div class="tutrow"><div class="ti">✊</div><div class="tt">握拳摇一摇<small>晃动水晶球，下一场雪</small></div></div>
@@ -633,9 +649,20 @@ for(i=0;i<70;i++)snowMid.push({x:Math.random(),y:Math.random(),r:1.2+Math.random
 for(i=0;i<55;i++)snowNear.push({x:Math.random(),y:Math.random(),r:1.5+Math.random()*2.1,vy:0.00055+Math.random()*0.0007,ph:Math.random()*6.28});
 var PX={cx:0,cy:0,tx:0,ty:0};
 window.__setPX=function(x,y){PX.tx=x;PX.ty=y;};
-window.__spawnFirework=function(x,y,hue){
-  for(var k=0;k<64;k++){var a=Math.random()*6.283,sp=(0.0018+Math.random()*0.004);
-    fworks.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-0.0012,life:1,hue:(hue==null?38+Math.random()*26:hue+Math.random()*24-12),r:1+Math.random()*2.2});}
+var FW_HUES=[44,350,205,10];
+function bloom(x,y,hue,big){ /* 双层绽放：外环主色 + 内环撞色 + 冲击闪圈 */
+  var n1=big?46:36,n2=big?30:22;
+  for(var k=0;k<n1;k++){var a=k/n1*6.283+Math.random()*0.12,sp=0.003+Math.random()*0.0017;
+    fworks.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1,hue:hue+Math.random()*20-10,r:1.6+Math.random()*1.4});}
+  for(var k2=0;k2<n2;k2++){var a2=k2/n2*6.283,sp2=0.0015+Math.random()*0.0009;
+    fworks.push({x:x,y:y,vx:Math.cos(a2)*sp2,vy:Math.sin(a2)*sp2,life:0.85,hue:(hue+150)%360,r:1.1+Math.random()});}
+  fworks.push({flash:true,x:x,y:y,life:1,r:0.014,hue:hue,vx:0,vy:0});
+}
+window.__spawnFirework=function(x,y,hue){ /* 彗星升空 → 双层绽放 */
+  if(hue==null)hue=FW_HUES[(Math.random()*FW_HUES.length)|0];
+  fworks.push({comet:true,x:x,y:y,vx:(Math.random()-0.5)*0.0012,vy:-0.0062-Math.random()*0.0016,life:1,hue:hue,r:2.2});
+  for(var k=0;k<10;k++){var a0=Math.random()*6.283; /* 指尖即时星火 */
+    fworks.push({x:x,y:y,vx:Math.cos(a0)*0.0016,vy:Math.sin(a0)*0.0016-0.0009,life:0.5,hue:44,r:1+Math.random(),trailbit:true});}
 };
 window.launchFireworks=function(n,big){
   for(var k=0;k<n;k++){setTimeout(function(){
@@ -767,9 +794,26 @@ function frame(){
     ctx.globalAlpha=tp.life*0.85;ctx.fillStyle="#f6dc9a";
     ctx.beginPath();ctx.arc(tp.x*W,tp.y*H,(0.8+tp.life*1.6)*dp,0,6.283);ctx.fill();}
   ctx.globalAlpha=1;
-  /* 烟花 */
+  /* 烟花：彗星 → 绽放 → 闪圈 */
   for(var fi=fworks.length-1;fi>=0;fi--){var p=fworks[fi];
-    p.x+=p.vx;p.y+=p.vy;p.vy+=0.00003;p.life-=0.011;
+    if(p.comet){
+      p.x+=p.vx;p.y+=p.vy;p.vy+=0.00011;p.life-=0.006;
+      if(Math.random()<0.9)fworks.push({x:p.x,y:p.y,vx:(Math.random()-0.5)*0.0004,vy:0.0002,life:0.4,hue:44,r:0.9,trailbit:true});
+      ctx.globalAlpha=1;ctx.fillStyle="#fff6dc";
+      ctx.beginPath();ctx.arc(p.x*W,p.y*H,p.r*dp,0,6.283);ctx.fill();
+      if(p.vy>-0.0009||p.life<=0.35){fworks.splice(fi,1);bloom(p.x,p.y,p.hue,p.life>0.2);}
+      continue;
+    }
+    if(p.flash){
+      p.life-=0.045;
+      if(p.life<=0){fworks.splice(fi,1);continue;}
+      var fr=p.r*(1+(1-p.life)*2.8)*Math.max(W,H);
+      ctx.globalAlpha=p.life*0.55;ctx.strokeStyle="hsl("+p.hue+",90%,82%)";
+      ctx.lineWidth=2.4*dp;
+      ctx.beginPath();ctx.arc(p.x*W,p.y*H,fr,0,6.283);ctx.stroke();
+      continue;
+    }
+    p.x+=p.vx;p.y+=p.vy;p.vy+=0.00003;p.life-=p.trailbit?0.05:0.011;
     if(p.life<=0){fworks.splice(fi,1);continue;}
     ctx.globalAlpha=Math.max(0,p.life);
     ctx.fillStyle="hsl("+p.hue+",95%,"+(55+p.life*25)+"%)";
@@ -812,11 +856,27 @@ function frame(){
       ctx.fillStyle=og;ctx.beginPath();ctx.arc(ox,oy,orr*2.8*pulse,0,6.283);ctx.fill();
       ctx.fillStyle="#fff6dc";ctx.beginPath();ctx.arc(ox,oy,orr*0.42,0,6.283);ctx.fill();
       /* 环绕小星 */
-      for(var ok=0;ok<5;ok++){
-        var oa=T*0.004+ok/5*6.283;
+      for(var ok=0;ok<7;ok++){
+        var oa=T*0.004+ok/7*6.283,ora=orr*(1.5+0.3*Math.sin(T*0.005+ok));
         ctx.fillStyle="rgba(246,220,154,"+(0.5+0.5*Math.sin(T*0.006+ok))+")";
-        ctx.beginPath();ctx.arc(ox+Math.cos(oa)*orr*1.5,oy+Math.sin(oa)*orr*1.5,1.6*dp2,0,6.283);ctx.fill();}
+        ctx.beginPath();ctx.arc(ox+Math.cos(oa)*ora,oy+Math.sin(oa)*ora,(1.2+o.c*1.1)*dp2,0,6.283);ctx.fill();}
       ctx.restore();
+      /* 蓄力专属：进度金环 + 反向虚线环 + 光柱 */
+      if(o.phase==="charge"){
+        ctx.save();ctx.globalCompositeOperation="lighter";
+        var rr2=orr*2.3;
+        ctx.strokeStyle="rgba(246,220,154,"+(0.35+0.5*o.c)+")";
+        ctx.lineWidth=(2+o.c*2.6)*dp2;ctx.lineCap="round";
+        ctx.beginPath();ctx.arc(ox,oy,rr2,-Math.PI/2,-Math.PI/2+o.c*6.283);ctx.stroke();
+        ctx.strokeStyle="rgba(246,220,154,0.26)";ctx.lineWidth=1.2*dp2;
+        ctx.setLineDash([6*dp2,9*dp2]);
+        ctx.beginPath();ctx.arc(ox,oy,rr2*1.38,T*0.003,T*0.003+6.283);ctx.stroke();
+        ctx.setLineDash([]);
+        if(o.c>0.55){var pg2=ctx.createLinearGradient(0,oy,0,oy-150*dp2);
+          pg2.addColorStop(0,"rgba(255,246,220,"+(0.35*(o.c-0.55))+")");pg2.addColorStop(1,"rgba(255,246,220,0)");
+          ctx.fillStyle=pg2;ctx.fillRect(ox-3*dp2,oy-150*dp2,6*dp2,150*dp2);}
+        ctx.restore();
+      }
     }
   }
   requestAnimationFrame(frame);
@@ -1207,7 +1267,7 @@ function renderStage(){
           '</div>'+
         '</div>'+
         '<div class="cface ticket" id="cfaceEl">'+
-          '<div class="holo"></div><div class="frame"></div>'+
+          '<div class="holo"></div><div class="frame"><i></i><i></i><i></i><i></i></div>'+
           '<div class="tk-photo">'+photoInner+'<div class="tk-cap">'+esc(b.title.split("·")[1]||b.title)+'</div></div>'+
           '<div class="tk-stub">'+
             '<div class="tk-v">GIFT · FOR YY</div>'+
@@ -1536,20 +1596,43 @@ addEventListener("resize",function(){setTimeout(moveLens,60);});
   addEventListener("pointerup",skyUp,{passive:true});
   addEventListener("pointercancel",function(){if(holdTm){clearTimeout(holdTm);holdTm=null;}if(holding){holding=false;window.__wishRelease&&window.__wishRelease();}},{passive:true});
 })();
-/* ═══ 掌心浮卡：卡包/贺卡跟随手掌 ═══ */
+/* ═══ 掌心浮卡：卡包/贺卡跟随手掌（握拳=抓住并 3D 倾斜） ═══ */
 (function(){
-  var fx=0.5,fy=0.55,tx=0.5,ty=0.55,active=false;
-  window.__palmFloat=function(x,y){if(x==null){active=false;}else{active=true;tx=x;ty=Math.max(0.22,Math.min(0.78,y-0.15));}}; /* 悬在掌心上方 */
+  var fx=0.5,fy=0.55,tx=0.5,ty=0.55,active=false,held=false,hrx=0,hry=0;
+  window.__palmFloat=function(x,y,h){if(x==null){active=false;held=false;}else{active=true;tx=x;ty=Math.max(0.22,Math.min(0.78,y-0.15));held=!!h;}}; /* 悬在掌心上方 */
   window.__floatEnabled=function(){return camLive&&active;};
+  /* 贺卡 3D 倾斜：指针悬停 / 掌心位置驱动 */
+  window.__cardTilt=function(x,y){
+    var c=document.querySelector("#packLayer .card3d");if(!c)return;
+    c.style.setProperty("--try",((x-0.5)*16).toFixed(1)+"deg");
+    c.style.setProperty("--trx",((0.5-y)*11).toFixed(1)+"deg");
+  };
+  addEventListener("pointermove",function(e){
+    var c=document.querySelector("#packLayer .card3d");if(!c)return;
+    var r=c.getBoundingClientRect();if(!r.width)return;
+    var x=(e.clientX-(r.left+r.width/2))/r.width, y=(e.clientY-(r.top+r.height/2))/r.height;
+    if(Math.abs(x)<1.2&&Math.abs(y)<1.2){
+      c.style.setProperty("--try",(Math.max(-1,Math.min(1,x))*9).toFixed(1)+"deg");
+      c.style.setProperty("--trx",(Math.max(-1,Math.min(1,y))*-7).toFixed(1)+"deg");
+    }
+  },{passive:true});
   (function loop(){
     fx+=(tx-fx)*0.14;fy+=(ty-fy)*0.14;
+    var trx2=held?(0.5-fy)*26:0, try2=held?(fx-0.5)*36:0;
+    hrx+=(trx2-hrx)*0.12;hry+=(try2-hry)*0.12;
     var w=document.querySelector("#packLayer .packwrap")||document.querySelector("#packLayer .cardwrap");
     if(w){
       if(window.__floatEnabled()){
         if(!w.__base){var r0=w.getBoundingClientRect();w.__base={cx:r0.left+r0.width/2,cy:r0.top+r0.height/2};}
         var dx=fx*innerWidth-w.__base.cx, dy=fy*innerHeight-w.__base.cy;
-        w.style.transform="translate("+(dx*0.9).toFixed(1)+"px,"+(dy*0.9).toFixed(1)+"px)";
-      }else if(w.style.transform){w.style.transform="";w.__base=null;}
+        var isPack=w.classList.contains("packwrap");
+        var t3=isPack?(" rotateY("+hry.toFixed(1)+"deg) rotateX("+hrx.toFixed(1)+"deg) scale("+(held?1.07:1)+")"):"";
+        w.style.transform="translate("+(dx*0.9).toFixed(1)+"px,"+(dy*0.9).toFixed(1)+"px)"+t3;
+        if(isPack){w.classList.add("noloop");w.classList.toggle("held",held);}
+      }else if(w.style.transform||w.classList.contains("noloop")){
+        w.style.transform="";w.__base=null;
+        w.classList.remove("noloop");if(w.classList.contains("packwrap"))w.classList.remove("held");
+      }
     }
     requestAnimationFrame(loop);
   })();
@@ -1568,7 +1651,7 @@ function setGest(mode){
     else text.textContent="🌠 点夜空放烟花 · 点 ✋ 开启手势识别";
     return;
   }
-  if(mode==="pack"){icon.textContent="🖐";text.textContent="一只手掌心向上托住 · 另一只手捏住，慢慢向外拉 = 撕多少你说了算";}
+  if(mode==="pack"){icon.textContent="🖐";text.textContent="张掌 = 托住卡包 · 握拳 = 抓住倾斜 · 另一只手捏住向外拉 = 撕开";}
   else if(mode==="tearing"){icon.textContent="✨";text.textContent="继续……就要撕开了！";}
   else if(mode==="card"){icon.textContent="✌️";text.textContent="比耶 = 翻贺卡 · 👍 按住 = 蓄力许愿 · ☝️ = 指尖烟花 · ✊ = 摇雪";}
   else if(mode==="locked"){icon.textContent="👋";text.textContent="这一夜在封印中 · 左右挥手切换";}
@@ -2162,7 +2245,7 @@ async function start(){
     window.__gestureReady();
     let lastT=0,palmHist=[],lastSwipe=0,lastWish=0,lastFlip=0,lastShake=0,lastPoint=0;
     let wishHold=false,twoSeen=false,oneHandSince=0,lastOneHint=0;
-    let tearPrevX=null,tearPrevT=0,lastRip=0,gripping=false,pinchPrevX=null,gripStartX=0,gripBase=0;
+    let tearPrevX=null,tearPrevT=0,lastRip=0,gripping=false,pinchPrevX=null,gripStartX=0,gripBase=0,trayHeld=false;
     /* 捏合度：拇指尖(4)到食指尖(8)的距离 ÷ 手掌大小(腕0→中指根9)。捏东西≈0.2~0.35，张开≈1.0+ */
     function pinchRatio(h){
       const dx=h[4].x-h[8].x,dy=h[4].y-h[8].y;
@@ -2191,7 +2274,9 @@ async function start(){
         const gh=gests[hi]&&gests[hi][0]?gests[hi][0].categoryName:"";      /* 托手的手势 */
         const go=gests[1-hi]&&gests[1-hi][0]?gests[1-hi][0].categoryName:""; /* 另一只手 */
         window.__palm(px,py,gh==="Closed_Fist");
-        window.__palmFloat&&window.__palmFloat(px,py);
+        window.__palmFloat&&window.__palmFloat(px,py,gh==="Closed_Fist"); /* 张掌=托住 · 握拳=抓住并 3D 倾斜 */
+        if(gh==="Closed_Fist"&&!trayHeld)toastMsg("抓住了 ✊ 移动手调整角度");
+        trayHeld=gh==="Closed_Fist";
         if(hands[1])window.__palm2(1-hands[1-hi][9].x,hands[1-hi][9].y);
         else window.__palm2(null);
         /* 挥手：150ms 窗口速度 */
@@ -2208,7 +2293,7 @@ async function start(){
         if(gh==="Victory"&&now-lastFlip>1200){lastFlip=now;window.__flip();}
         /* 另一只手张开 = 翻卡 */
         if(go==="Open_Palm"&&now-lastFlip>1200){lastFlip=now;window.__flip();}
-        if(gh==="Closed_Fist"&&hands.length===1&&now-lastShake>1500){lastShake=now;window.__shakeGlobe();}
+        if(gh==="Closed_Fist"&&hands.length===1&&now-lastShake>1500&&!(window.__packLive&&window.__packLive())){lastShake=now;window.__shakeGlobe();}
         /* 👍 大拇指按住蓄力许愿，松开/换手势放飞（比 🤟 识别稳得多） */
         if(gh==="Thumb_Up"){
           wishHold=true;
