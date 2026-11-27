@@ -431,7 +431,7 @@ canvas{display:block}
     <div class="ec-t4">🎵 音乐会自己响起 · 进入后自动开启手势识别</div>
   </div>
   <div class="ec-foot">DEC 19 — 25 · 2026 · 七 个 夜 晚</div>
-  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v15.8 · 1127</div>
+  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v15.9 · 1127</div>
 </div>
 
 <!-- 手势教学 -->
@@ -923,7 +923,7 @@ function frame(){
       if(absorbed)o.c=Math.min(1,o.c+absorbed*0.035);
       if(Math.random()<0.5)wishDust.push({x:Math.random(),y:0.3+Math.random()*0.6,tx:o.x,ty:o.y,t:0,sp:0.02+Math.random()*0.02,r:1+Math.random()*1.6});
       if(o.c>=0.25&&!o.ok25){o.ok25=true;toastMsg("星核已成 ✦ 随时可以松手放飞");}
-      if(o.c>=1)window.__wishRelease();
+      /* 蓄满即停：停在 100% 等你亲手松手，不会自动放飞 */
     }else{
       o.t+=0.014;
       var eo=o.t<0.5?2*o.t*o.t:1-Math.pow(-2*o.t+2,2)/2;
@@ -976,10 +976,10 @@ function frame(){
           ctx.fillStyle="rgba(246,220,154,0.6)";ctx.shadowBlur=0;
           ctx.font=(11*Math.max(1,dp2*0.9))+"px 'Noto Serif SC',serif";
           ctx.fillText("继续按住 · 蓄到 25% 才能放飞",ox,oy-rr2-30*dp2);
-        }else if(o.c<1){
-          ctx.fillStyle="rgba(246,220,154,0.75)";ctx.shadowBlur=0;
+        }else{
+          ctx.fillStyle="rgba(246,220,154,0.85)";ctx.shadowBlur=0;
           ctx.font=(11*Math.max(1,dp2*0.9))+"px 'Noto Serif SC',serif";
-          ctx.fillText("松手即可放飞 · 吸雪花蓄更快",ox,oy-rr2-30*dp2);
+          ctx.fillText(o.c>=1?"星核已满 ✦ 等你亲手放飞":"松手即可放飞 · 吸雪花蓄更快",ox,oy-rr2-30*dp2);
         }
         ctx.restore();
         ctx.restore();
