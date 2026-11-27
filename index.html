@@ -431,7 +431,7 @@ canvas{display:block}
     <div class="ec-t4">🎵 音乐会自己响起 · 进入后自动开启手势识别</div>
   </div>
   <div class="ec-foot">DEC 19 — 25 · 2026 · 七 个 夜 晚</div>
-  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v14.3 · 1125</div>
+  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v15.0 · 1126</div>
 </div>
 
 <!-- 手势教学 -->
@@ -612,6 +612,7 @@ function isUnlocked(i){
 function markOpened(i){
   if(opened.indexOf(i)<0){opened.push(i);saveJSON("xmas_opened",opened);}
   litFlash[i]=1;
+  window.__bell&&window.__bell(i); /* 挂饰亮起时响一个音符 */
   buildRail();
 }
 function bumpStat(k){var v=loadJSON(k,0)+1;saveJSON(k,v);return v;}
@@ -623,10 +624,30 @@ function shake(el){if(!el||!el.animate)return;el.animate(
   [{transform:"translateX(0)"},{transform:"translateX(-7px)"},{transform:"translateX(6px)"},{transform:"translateX(-4px)"},{transform:"translateX(0)"}],
   {duration:320});}
 
+/* ═══ 圣诞风铃：WebAudio 合成，不需要音频文件 ═══ */
+var __AC=null;
+window.__bell=function(i){ /* i: 0~6 → do re mi fa sol la si */
+  try{
+    if(!__AC)__AC=new (window.AudioContext||window.webkitAudioContext)();
+    if(__AC.state==="suspended")__AC.resume();
+    var NOTES=[523.25,587.33,659.25,698.46,783.99,880.00,987.77];
+    var freq=NOTES[i%7],t=__AC.currentTime;
+    var g=__AC.createGain();g.connect(__AC.destination);
+    var o1=__AC.createOscillator(),o2=__AC.createOscillator(),g2=__AC.createGain();
+    o1.frequency.value=freq;o2.frequency.value=freq*2.01;g2.gain.value=0.16;
+    o1.connect(g);o2.connect(g2);g2.connect(g);
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(0.32,t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+1.6);
+    o1.start(t);o2.start(t);o1.stop(t+1.7);o2.stop(t+1.7);
+  }catch(e){}
+};
+
 /* ═══ 世界背景：夜空 / 星 / 月 / 极光 / 暖光斑 / 雪丘 / 雪 ═══ */
 (function(){
 var cv=$("bgCv"),ctx=cv.getContext("2d"),W=0,H=0,T=0;
-var stars=[],bokeh=[],snowFar=[],snowMid=[],snowNear=[],fworks=[],wishDust=[],trail=[];
+var stars=[],bokeh=[],snowFar=[],snowMid=[],snowNear=[],fworks=[],wishDust=[],trail=[],aurora=[];
+var snowCaught=0;
 var meteor=null,nextMeteor=6000;
 window.__meteorHead=null;
 var wishOrb=null;
@@ -701,7 +722,22 @@ window.__skyTap=function(x,y){
       return;
     }
   }
+  /* 接雪花：点到近处的大雪花，它化成星尘被你收走 */
+  for(var si=0;si<snowNear.length;si++){var sf=snowNear[si];
+    var sdx=x-sf.x,sdy=y-sf.y;
+    if(sdx*sdx+sdy*sdy<0.0012){
+      sf.y=-0.02;sf.x=Math.random();
+      snowCaught++;
+      for(var sb=0;sb<8;sb++)trail.push({x:x,y:y,vx:(Math.random()-0.5)*0.002,vy:-0.001-Math.random()*0.002,life:0.9});
+      toastMsg(snowCaught%5===0?("已经接住 "+snowCaught+" 片雪花啦 ❄"):("接住雪花 ❄ ×"+snowCaught));
+      return;
+    }
+  }
   window.__spawnFirework(x,y,null);
+};
+window.__aurora=function(x,y){ /* 快速划过夜空 = 画一笔极光 */
+  aurora.push({x:x,y:y,life:1});
+  if(aurora.length>90)aurora.shift();
 };
 function hillPath(base,amp,ph){
   ctx.beginPath();ctx.moveTo(0,H);
@@ -772,6 +808,19 @@ function frame(){
         ctx.fillStyle=isGold?"rgba(246,220,154,0.85)":"rgba(255,255,255,0.55)";
         ctx.beginPath();ctx.arc(px2,py,f.r*dp,0,6.283);ctx.fill();}}}
   ctx.globalAlpha=1;
+  /* 极光缎带（快划夜空留下，缓缓消散） */
+  if(aurora.length>1){
+    ctx.save();ctx.globalCompositeOperation="lighter";ctx.lineCap="round";ctx.lineJoin="round";
+    for(var ai=aurora.length-1;ai>0;ai--){var a1=aurora[ai],a0=aurora[ai-1];
+      a1.life-=0.011;
+      if(a1.life<=0){aurora.splice(ai,1);continue;}
+      var ah=150+Math.sin(a1.x*6+T*0.0012)*42;
+      ctx.strokeStyle="hsla("+ah+",85%,66%,"+(a1.life*0.34)+")";
+      ctx.lineWidth=(9+a1.life*22)*dp;
+      ctx.beginPath();ctx.moveTo(a0.x*W,a0.y*H);ctx.lineTo(a1.x*W,a1.y*H);ctx.stroke();
+    }
+    ctx.restore();
+  }
   snowLayer(snowFar,0);snowLayer(snowMid,1);snowLayer(snowNear,2);
   /* 流星（可点住许愿） */
   if(!meteor&&T>nextMeteor)meteor={x:0.55+Math.random()*0.5,y:0.02,vx:-(0.0022+Math.random()*0.0012),vy:0.0011,life:1};
@@ -1115,13 +1164,13 @@ function frame(){
   requestAnimationFrame(frame);
 }
 frame();
-/* 挂饰连点彩蛋 */
+/* 挂饰连点彩蛋（+ 每个挂饰是一个风铃音符） */
 cv.addEventListener("click",function(e){
   var r=cv.getBoundingClientRect();
   var x=e.clientX-r.left,y=e.clientY-r.top;
   for(var i=0;i<ornPos.length;i++){
     var dx=x-ornPos[i].x,dy=y-ornPos[i].y;
-    if(dx*dx+dy*dy<26*26){seqHit(i);return;}
+    if(dx*dx+dy*dy<26*26){window.__bell&&window.__bell(i);seqHit(i);return;}
   }
 });
 window.__treeTop=function(){var r=cv.getBoundingClientRect();return {x:(r.left+r.width/2)/innerWidth,y:(r.top+r.height*0.1)/innerHeight};};
@@ -1132,7 +1181,7 @@ function tearLive(p){
   var el=$("packEl");if(!el||el.classList.contains("ripped"))return;
   p=Math.max(0,Math.min(1,p));
   el.style.setProperty("--tp",p.toFixed(3));
-  if(p>=0.64)completeTear(cur);
+  if(p>=0.78)completeTear(cur);
 }
 var tearState={p:0,decay:null};
 var tornThisSession={}; /* 本次会话里已撕开的夜：贺卡页可「再撕一次」重置它 */
@@ -1570,14 +1619,19 @@ addEventListener("resize",function(){setTimeout(moveLens,60);});
 })();
 /* ═══ 天空互动：星尘轨迹 / 点烟花 / 长按许愿 / 抓流星 ═══ */
 (function(){
-  var lastT=0,holdTm=null,holding=false,downX=0,downY=0;
+  var lastT=0,holdTm=null,holding=false,downX=0,downY=0,lastMX=null,lastMY=0,lastMT=0;
   function inUI(t){return t&&t.closest&&(t.closest(".overlay")||t.closest("#packLayer")||t.closest("#railWrap")||t.closest("#topbar")||t.closest("#gestHint")||t.closest(".cardwrap")||t.closest("#mast"));}
   addEventListener("pointermove",function(e){
     var now=performance.now();if(now-lastT<26)return;lastT=now;
     if(inUI(e.target))return;
     if(!$("entryCover").classList.contains("hidden"))return;
     if(holding){window.__wishCharge&&window.__wishCharge(e.clientX/innerWidth,e.clientY/innerHeight);return;}
-    window.__trail&&window.__trail(e.clientX/innerWidth,e.clientY/innerHeight);
+    /* 慢移=星尘轨迹，快划=画极光 */
+    var spd=0;
+    if(lastMX!=null)spd=Math.hypot(e.clientX-lastMX,e.clientY-lastMY)/((now-lastMT)||26);
+    lastMX=e.clientX;lastMY=e.clientY;lastMT=now;
+    if(spd>1.15&&window.__aurora)window.__aurora(e.clientX/innerWidth,e.clientY/innerHeight);
+    else if(window.__trail)window.__trail(e.clientX/innerWidth,e.clientY/innerHeight);
   },{passive:true});
   addEventListener("pointerdown",function(e){
     if(inUI(e.target))return;
@@ -1629,7 +1683,7 @@ function setGest(mode){
     if(mode==="pack")text.textContent="左右拖拽卡包 = 撕开 · 左右滑屏幕 = 切换夜晚";
     else if(mode==="card")text.textContent="点击卡面翻开 · 左右滑切换夜晚";
     else if(mode==="locked")text.textContent="这一夜还在封印中 · 左右滑看看别的";
-    else text.textContent="🌠 点夜空放烟花 · 点 ✋ 开启手势识别";
+    else text.textContent="🌠 点夜空放烟花 · 快划画极光 · 点雪花接住它 · 点树上挂饰有惊喜";
     return;
   }
   if(mode==="pack"){icon.textContent="🖐";text.textContent="张掌 = 卡包变大立起来 · 另一只手捏住，慢慢向外拉 = 撕开";}
@@ -2313,15 +2367,15 @@ async function start(){
           }
           /* 捏住时：进度绝对跟随手——拉多远撕多远，慢拉就慢撕，完全可控 */
           if(gripping){
-            const p=gripBase+Math.abs(ax-gripStartX)/0.17;
+            const p=gripBase+Math.abs(ax-gripStartX)/0.30;
             window.__tearPull&&window.__tearPull(p);
           }
           /* 兜底：撕手快速向外一挥也撕一大口 */
           if(tearPrevX!=null&&now-tearPrevT>0){
             const vx=(ax-tearPrevX)/((now-tearPrevT)||16);
-            if(Math.abs(vx)>0.0007&&now-lastRip>260){
+            if(Math.abs(vx)>0.0012&&now-lastRip>260){
               lastRip=now;
-              window.__tearStep&&window.__tearStep(0.4);
+              window.__tearStep&&window.__tearStep(0.28);
               toastMsg("嘶啦 ✦");
               const r2=document.getElementById("palmRing2");
               if(r2){r2.classList.add("rip");setTimeout(function(){r2.classList.remove("rip");},300);}
