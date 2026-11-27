@@ -431,7 +431,7 @@ canvas{display:block}
     <div class="ec-t4">🎵 音乐会自己响起 · 进入后自动开启手势识别</div>
   </div>
   <div class="ec-foot">DEC 19 — 25 · 2026 · 七 个 夜 晚</div>
-  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v15.3 · 1127</div>
+  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v15.4 · 1127</div>
 </div>
 
 <!-- 手势教学 -->
@@ -443,7 +443,7 @@ canvas{display:block}
     <div class="tutrow"><div class="ti">👋</div><div class="tt">向左 / 向右挥手<small>切换前一天 / 后一天</small></div></div>
     <div class="tutrow"><div class="ti">✌️</div><div class="tt">比耶，或另一只手张开<small>翻开贺卡读信</small></div></div>
     <div class="tutrow"><div class="ti">✊</div><div class="tt">握拳摇一摇<small>晃动水晶球，下一场雪</small></div></div>
-    <div class="tutrow"><div class="ti">👍</div><div class="tt">大拇指竖起来按住别放<small>周围雪花会被吸进指尖聚成愿望球（吸得越多蓄得越快），松手放飞——它将化作一颗星，永久挂在树上</small></div></div>
+    <div class="tutrow"><div class="ti">👍</div><div class="tt">大拇指竖起来按住别放<small>周围雪花会被吸进指尖聚成愿望球，松手放飞——化作一颗星永久挂在树上（卡包没撕开时也能玩）</small></div></div>
     <div class="tutrow"><div class="ti">🤏</div><div class="tt">拇指和食指捏一捏，凑近飘落的大雪花<small>捏住雪花 = 接住它，化成星尘还帮你计数</small></div></div>
     <div class="tutrow"><div class="ti">☝️</div><div class="tt">手指指向天空<small>指尖会开出烟花</small></div></div>
     <div class="tutrow"><div class="ti">🌠</div><div class="tt">点一点夜空<small>放一朵小烟花 · 长按也能许愿 · 点住流星 = 接住愿望</small></div></div>
@@ -2375,13 +2375,15 @@ async function start(){
         const gh=gests[hi]&&gests[hi][0]?gests[hi][0].categoryName:"";      /* 托手的手势 */
         const go=gests[1-hi]&&gests[1-hi][0]?gests[1-hi][0].categoryName:""; /* 另一只手 */
         window.__palm(px,py,gh==="Closed_Fist");
-        /* 🤏 拇指食指捏住（捏点凑近大雪花 = 接住；卡包在场时不抢戏） */
+        /* 🤏 捏住（捏点凑近大雪花 = 接住；卡包在场也能先玩一会儿） */
         const prT=pinchRatio(lm);
-        if(prT<0.38&&!(window.__packLive&&window.__packLive())){
+        if(prT<0.38){
           const capx=1-(lm[4].x+lm[8].x)/2,capy=(lm[4].y+lm[8].y)/2;
           window.__snowCatch&&window.__snowCatch(capx,capy);
         }
-        window.__palmFloat&&window.__palmFloat(px,py);
+        /* 蓄力时掌心展示暂停，画面让给愿望星核（否则卡包飘过来正好挡住它） */
+        if(gh==="Thumb_Up")window.__palmFloat&&window.__palmFloat(null);
+        else window.__palmFloat&&window.__palmFloat(px,py);
         if(hands[1])window.__palm2(1-hands[1-hi][9].x,hands[1-hi][9].y);
         else window.__palm2(null);
         /* 挥手：150ms 窗口速度 */
@@ -2399,10 +2401,10 @@ async function start(){
         /* 另一只手张开 = 翻卡 */
         if(go==="Open_Palm"&&now-lastFlip>1200){lastFlip=now;window.__flip();}
         if(gh==="Closed_Fist"&&hands.length===1&&now-lastShake>1500&&!(window.__packLive&&window.__packLive())){lastShake=now;window.__shakeGlobe();}
-        /* 👍 大拇指按住蓄力许愿，松开/换手势放飞（比 🤟 识别稳得多） */
+        /* 👍 大拇指按住蓄力许愿，松开/换手势放飞（比 🤟 识别稳得多）；星核悬在拇指上方，卡包在场也清晰可见 */
         if(gh==="Thumb_Up"){
           wishHold=true;
-          window.__wishCharge&&window.__wishCharge(px,py);
+          window.__wishCharge&&window.__wishCharge(px,py-0.1);
         }else if(wishHold){
           wishHold=false;lastWish=now;
           window.__wishRelease&&window.__wishRelease();
@@ -2457,7 +2459,7 @@ async function start(){
           /* 卡包在面前却只看到一只手：提醒把另一只手伸进来 */
           if(hands.length===1){
             if(!oneHandSince)oneHandSince=now;
-            if(now-oneHandSince>1600&&now-lastOneHint>4500&&window.__packLive&&window.__packLive()){
+            if(now-oneHandSince>1600&&now-lastOneHint>4500&&window.__packLive&&window.__packLive()&&gh!=="Thumb_Up"&&gh!=="Pointing_Up"){
               lastOneHint=now;toastMsg("只看到一只手 · 另一只手也伸进来，捏住包装向外拉 ✋✋");
             }
           }
