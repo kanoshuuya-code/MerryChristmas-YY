@@ -42,8 +42,6 @@ canvas{display:block}
 #mast .mast-r b{color:var(--gold-strong);font-weight:600}
 
 #treeCv{position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);z-index:3;pointer-events:auto}
-/* 卡包在场时：树缩小移到左上，挂饰不再被挡住（风铃照常点） */
-body.packmode #treeCv{transform:translate(-86%,-64%) scale(.6)}
 
 /* ═══ 卡包 ═══ */
 #packLayer{position:fixed;inset:0;z-index:6;display:flex;align-items:flex-end;justify-content:center;
@@ -433,7 +431,7 @@ body.packmode #treeCv{transform:translate(-86%,-64%) scale(.6)}
     <div class="ec-t4">🎵 音乐会自己响起 · 进入后自动开启手势识别</div>
   </div>
   <div class="ec-foot">DEC 19 — 25 · 2026 · 七 个 夜 晚</div>
-  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v15.1 · 1127</div>
+  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v15.3 · 1127</div>
 </div>
 
 <!-- 手势教学 -->
@@ -446,7 +444,7 @@ body.packmode #treeCv{transform:translate(-86%,-64%) scale(.6)}
     <div class="tutrow"><div class="ti">✌️</div><div class="tt">比耶，或另一只手张开<small>翻开贺卡读信</small></div></div>
     <div class="tutrow"><div class="ti">✊</div><div class="tt">握拳摇一摇<small>晃动水晶球，下一场雪</small></div></div>
     <div class="tutrow"><div class="ti">👍</div><div class="tt">大拇指竖起来按住别放<small>周围雪花会被吸进指尖聚成愿望球（吸得越多蓄得越快），松手放飞——它将化作一颗星，永久挂在树上</small></div></div>
-    <div class="tutrow"><div class="ti">❄</div><div class="tt">张开手掌在雪花里慢慢移动<small>大雪花落到掌心 = 接住它，会帮你计数</small></div></div>
+    <div class="tutrow"><div class="ti">🤏</div><div class="tt">拇指和食指捏一捏，凑近飘落的大雪花<small>捏住雪花 = 接住它，化成星尘还帮你计数</small></div></div>
     <div class="tutrow"><div class="ti">☝️</div><div class="tt">手指指向天空<small>指尖会开出烟花</small></div></div>
     <div class="tutrow"><div class="ti">🌠</div><div class="tt">点一点夜空<small>放一朵小烟花 · 长按也能许愿 · 点住流星 = 接住愿望</small></div></div>
     <button class="tutbtn" id="tutOk">知道了，开始吧 ✦</button>
@@ -615,7 +613,6 @@ function isUnlocked(i){
 function markOpened(i){
   if(opened.indexOf(i)<0){opened.push(i);saveJSON("xmas_opened",opened);}
   litFlash[i]=1;
-  window.__bell&&window.__bell(i); /* 挂饰亮起时响一个音符 */
   buildRail();
 }
 function bumpStat(k){var v=loadJSON(k,0)+1;saveJSON(k,v);return v;}
@@ -626,25 +623,6 @@ function toastMsg(t){
 function shake(el){if(!el||!el.animate)return;el.animate(
   [{transform:"translateX(0)"},{transform:"translateX(-7px)"},{transform:"translateX(6px)"},{transform:"translateX(-4px)"},{transform:"translateX(0)"}],
   {duration:320});}
-
-/* ═══ 圣诞风铃：WebAudio 合成，不需要音频文件 ═══ */
-var __AC=null;
-window.__bell=function(i){ /* i: 0~6 → do re mi fa sol la si */
-  try{
-    if(!__AC)__AC=new (window.AudioContext||window.webkitAudioContext)();
-    if(__AC.state==="suspended")__AC.resume();
-    var NOTES=[523.25,587.33,659.25,698.46,783.99,880.00,987.77];
-    var freq=NOTES[i%7],t=__AC.currentTime;
-    var g=__AC.createGain();g.connect(__AC.destination);
-    var o1=__AC.createOscillator(),o2=__AC.createOscillator(),g2=__AC.createGain();
-    o1.frequency.value=freq;o2.frequency.value=freq*2.01;g2.gain.value=0.16;
-    o1.connect(g);o2.connect(g2);g2.connect(g);
-    g.gain.setValueAtTime(0.0001,t);
-    g.gain.exponentialRampToValueAtTime(0.32,t+0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001,t+1.6);
-    o1.start(t);o2.start(t);o1.stop(t+1.7);o2.stop(t+1.7);
-  }catch(e){}
-};
 
 /* ═══ 世界背景：夜空 / 星 / 月 / 极光 / 暖光斑 / 雪丘 / 雪 ═══ */
 (function(){
@@ -729,11 +707,15 @@ window.__skyTap=function(x,y){
   if(window.__snowCatch&&window.__snowCatch(x,y))return;
   window.__spawnFirework(x,y,null);
 };
-window.__aurora=function(x,y){ /* 快速划过夜空 = 画一笔极光 */
-  aurora.push({x:x,y:y,life:1});
-  if(aurora.length>90)aurora.shift();
+window.__aurora=function(x,y){ /* 快速划过夜空 = 画一笔极光（自动补点，长划也顺滑） */
+  var last=aurora[aurora.length-1];
+  if(!last){aurora.push({x:x,y:y,life:1});return;}
+  var d=Math.hypot(x-last.x,y-last.y);
+  var n=Math.max(1,Math.min(14,Math.round(d/0.02)));
+  for(var k=1;k<=n;k++)aurora.push({x:last.x+(x-last.x)*k/n,y:last.y+(y-last.y)*k/n,life:1});
+  while(aurora.length>150)aurora.shift();
 };
-window.__snowCatch=function(x,y){ /* 手掌掠过雪花 = 接住它（手势/鼠标共用） */
+window.__snowCatch=function(x,y){ /* 捏点碰到大雪花 = 接住它（手势/鼠标共用） */
   var now=performance.now();
   if(now-(window.__snowCatch.t||0)<380)return false;
   for(var si2=0;si2<snowNear.length;si2++){var sf2=snowNear[si2];
@@ -743,7 +725,7 @@ window.__snowCatch=function(x,y){ /* 手掌掠过雪花 = 接住它（手势/鼠
       snowCaught++;
       for(var sb=0;sb<8;sb++)trail.push({x:x,y:y,vx:(Math.random()-0.5)*0.002,vy:-0.001-Math.random()*0.002,life:0.9});
       window.__snowCatch.t=now;
-      toastMsg(snowCaught%5===0?("已经接住 "+snowCaught+" 片雪花 ❄"):("接住一片 ❄ ×"+snowCaught));
+      toastMsg(snowCaught%5===0?("已经接住 "+snowCaught+" 片雪花 ❄"):("🤏 接住一片 ❄ ×"+snowCaught));
       return true;
     }
   }
@@ -818,16 +800,41 @@ function frame(){
         ctx.fillStyle=isGold?"rgba(246,220,154,0.85)":"rgba(255,255,255,0.55)";
         ctx.beginPath();ctx.arc(px2,py,f.r*dp,0,6.283);ctx.fill();}}}
   ctx.globalAlpha=1;
-  /* 极光缎带（快划夜空留下，缓缓消散） */
+  /* 极光缎带：多层光带（柔光体 + 亮芯 + 紫罗兰错层）+ 波动 + 闪粉星，缓缓消散 */
   if(aurora.length>1){
     ctx.save();ctx.globalCompositeOperation="lighter";ctx.lineCap="round";ctx.lineJoin="round";
-    for(var ai=aurora.length-1;ai>0;ai--){var a1=aurora[ai],a0=aurora[ai-1];
-      a1.life-=0.011;
+    for(var ai=aurora.length-1;ai>0;ai--){
+      var a1=aurora[ai],a0=aurora[ai-1];
+      a1.life-=0.006;
       if(a1.life<=0){aurora.splice(ai,1);continue;}
-      var ah=150+Math.sin(a1.x*6+T*0.0012)*42;
-      ctx.strokeStyle="hsla("+ah+",85%,66%,"+(a1.life*0.34)+")";
-      ctx.lineWidth=(9+a1.life*22)*dp;
-      ctx.beginPath();ctx.moveTo(a0.x*W,a0.y*H);ctx.lineTo(a1.x*W,a1.y*H);ctx.stroke();
+      var L=a1.life;
+      /* 缎带随时间轻微波动（像真的极光在飘） */
+      var w1=Math.sin(a1.x*7+T*0.0016)*8*L*dp,w0=Math.sin(a0.x*7+T*0.0016)*8*L*dp;
+      var x1=a1.x*W,y1=a1.y*H+w1,x0=a0.x*W,y0=a0.y*H+w0;
+      var ddx=x1-x0,ddy=y1-y0,dl=Math.hypot(ddx,ddy)||1;
+      var nx=-ddy/dl,ny=ddx/dl;
+      var hu=155+Math.sin(ai*0.35+T*0.0012)*28+ai*0.6;
+      /* ① 宽柔光体 */
+      ctx.strokeStyle="hsla("+hu+",80%,62%,"+(L*0.12)+")";
+      ctx.lineWidth=(16+L*30)*dp;
+      ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();
+      /* ② 亮芯线（黄绿，最亮那根） */
+      ctx.strokeStyle="hsla("+(hu-50)+",95%,78%,"+(L*0.38)+")";
+      ctx.lineWidth=(2+L*6)*dp;
+      ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();
+      /* ③ 紫罗兰错层（偏移到缎带一侧） */
+      ctx.strokeStyle="hsla("+(hu+58)+",85%,70%,"+(L*0.15)+")";
+      ctx.lineWidth=(6+L*14)*dp;
+      var ox=nx*9*L*dp,oy=ny*9*L*dp;
+      ctx.beginPath();ctx.moveTo(x0+ox,y0+oy);ctx.lineTo(x1+ox,y1+oy);ctx.stroke();
+      /* ④ 沿途闪粉小星 */
+      if((ai&7)===0){
+        ctx.fillStyle="hsla(48,100%,88%,"+(L*0.65)+")";
+        var sr=(1.4+L*2.2)*dp;
+        ctx.beginPath();
+        ctx.moveTo(x1-sr,y1);ctx.lineTo(x1,y1-sr*0.35);ctx.lineTo(x1+sr,y1);ctx.lineTo(x1,y1+sr*0.35);
+        ctx.closePath();ctx.fill();
+      }
     }
     ctx.restore();
   }
@@ -1216,17 +1223,13 @@ function frame(){
   requestAnimationFrame(frame);
 }
 frame();
-/* 卡包在场时把树挪到左上（挂饰不再被挡住） */
-setInterval(function(){
-  try{document.body.classList.toggle("packmode",!!document.querySelector("#packLayer .packwrap"));}catch(e){}
-},400);
-/* 挂饰连点彩蛋（+ 每个挂饰是一个风铃音符） */
+/* 挂饰连点彩蛋 */
 cv.addEventListener("click",function(e){
   var r=cv.getBoundingClientRect();
-  var x=(e.clientX-r.left)*(cv.width/(r.width||cv.width)),y=(e.clientY-r.top)*(cv.height/(r.height||cv.height));
+  var x=e.clientX-r.left,y=e.clientY-r.top;
   for(var i=0;i<ornPos.length;i++){
     var dx=x-ornPos[i].x,dy=y-ornPos[i].y;
-    if(dx*dx+dy*dy<26*26){window.__bell&&window.__bell(i);seqHit(i);return;}
+    if(dx*dx+dy*dy<26*26){seqHit(i);return;}
   }
 });
 window.__treeTop=function(){var r=cv.getBoundingClientRect();return {x:(r.left+r.width/2)/innerWidth,y:(r.top+r.height*0.1)/innerHeight};};
@@ -1744,14 +1747,14 @@ function setGest(mode){
     if(mode==="pack")text.textContent="左右拖拽卡包 = 撕开 · 左右滑屏幕 = 切换夜晚";
     else if(mode==="card")text.textContent="点击卡面翻开 · 左右滑切换夜晚";
     else if(mode==="locked")text.textContent="这一夜还在封印中 · 左右滑看看别的";
-    else text.textContent="🌠 点夜空放烟花 · 快划画极光 · 点雪花接住它 · 点树上挂饰有惊喜";
+    else text.textContent="🌠 点夜空放烟花 · 快划画极光 · 点雪花接住它";
     return;
   }
   if(mode==="pack"){icon.textContent="🖐";text.textContent="张掌 = 卡包变大立起来 · 另一只手捏住，慢慢向外拉 = 撕开";}
   else if(mode==="tearing"){icon.textContent="✨";text.textContent="继续……就要撕开了！";}
   else if(mode==="card"){icon.textContent="✌️";text.textContent="比耶 = 翻贺卡 · 👍 按住 = 蓄力许愿 · ☝️ = 指尖烟花 · ✊ = 摇雪";}
   else if(mode==="locked"){icon.textContent="👋";text.textContent="这一夜在封印中 · 左右挥手切换";}
-  else{icon.textContent="🖐";text.textContent="张开手掌 = 卡片到手心 · 👍 按住 = 许愿（吸雪蓄力）· 张手移动 = 接雪花 · ☝️ = 烟花";}
+  else{icon.textContent="🖐";text.textContent="张开手掌 = 卡片到手心 · 👍 按住 = 许愿（吸雪蓄力）· 🤏 捏合 = 接雪花 · ☝️ = 烟花";}
 }
 
 /* ═══ 密码 & 管理面板 ═══ */
@@ -2372,7 +2375,12 @@ async function start(){
         const gh=gests[hi]&&gests[hi][0]?gests[hi][0].categoryName:"";      /* 托手的手势 */
         const go=gests[1-hi]&&gests[1-hi][0]?gests[1-hi][0].categoryName:""; /* 另一只手 */
         window.__palm(px,py,gh==="Closed_Fist");
-        window.__snowCatch&&window.__snowCatch(px,py); /* 手掌掠过大雪花 = 接住 */
+        /* 🤏 拇指食指捏住（捏点凑近大雪花 = 接住；卡包在场时不抢戏） */
+        const prT=pinchRatio(lm);
+        if(prT<0.38&&!(window.__packLive&&window.__packLive())){
+          const capx=1-(lm[4].x+lm[8].x)/2,capy=(lm[4].y+lm[8].y)/2;
+          window.__snowCatch&&window.__snowCatch(capx,capy);
+        }
         window.__palmFloat&&window.__palmFloat(px,py);
         if(hands[1])window.__palm2(1-hands[1-hi][9].x,hands[1-hi][9].y);
         else window.__palm2(null);
