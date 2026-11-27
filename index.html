@@ -431,7 +431,7 @@ canvas{display:block}
     <div class="ec-t4">🎵 音乐会自己响起 · 进入后自动开启手势识别</div>
   </div>
   <div class="ec-foot">DEC 19 — 25 · 2026 · 七 个 夜 晚</div>
-  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v15.5 · 1127</div>
+  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v15.6 · 1127</div>
 </div>
 
 <!-- 手势教学 -->
@@ -1223,13 +1223,15 @@ function frame(){
   requestAnimationFrame(frame);
 }
 frame();
-/* 挂饰连点彩蛋 */
+/* 彩蛋：点树顶最亮的那颗星（I→VII 连点挂饰仍保留为另一条暗线） */
 cv.addEventListener("click",function(e){
   var r=cv.getBoundingClientRect();
   var x=e.clientX-r.left,y=e.clientY-r.top;
+  var st=spiral(0), sdx=x-st.x, sdy=y-(st.y-S*0.02);
+  if(sdx*sdx+sdy*sdy<38*38){openEgg();return;}
   for(var i=0;i<ornPos.length;i++){
     var dx=x-ornPos[i].x,dy=y-ornPos[i].y;
-    if(dx*dx+dy*dy<26*26){seqHit(i);return;}
+    if(dx*dx+dy*dy<34*34){seqHit(i);return;}
   }
 });
 window.__treeTop=function(){var r=cv.getBoundingClientRect();return {x:(r.left+r.width/2)/innerWidth,y:(r.top+r.height*0.1)/innerHeight};};
@@ -1943,7 +1945,7 @@ $("zenBtn").addEventListener("click",function(){
   $("railWrap").style.display=dis;$("gestHint").style.display=dis;$("mast").style.display=dis;
   $("packLayer").style.display=dis; /* 沉浸=收起卡包/贺卡，整棵树让出来 */
   $("zenBtn").classList.toggle("off",!zen);
-  if(zen)toastMsg("沉浸夜空 ✦ 树上的挂饰，可以试着按顺序点亮…");
+  if(zen)toastMsg("沉浸夜空 ✦ 树顶最亮的那颗星，好像在等谁…");
 });
 $("bgmBtn").addEventListener("click",function(){
   var v=$("bgm");
