@@ -409,7 +409,7 @@ canvas{display:block}
   <div id="gestHint"><span class="gdot"></span><span id="gestIcon">🖐</span><span id="gestText">正在唤醒星光之手…</span></div>
   <div id="topbar">
     <button class="tbtn" id="admBtn" title="管理入口">⚙</button>
-    <button class="tbtn" id="zenBtn" title="沉浸模式">✦</button>
+    <button class="tbtn" id="zenBtn" title="沉浸模式（收起贺卡 · 欣赏圣诞树）">✦</button>
     <button class="tbtn" id="camBtn" title="手势识别">✋</button>
     <button class="tbtn" id="bgmBtn" title="音乐">🎵</button>
   </div>
@@ -431,7 +431,7 @@ canvas{display:block}
     <div class="ec-t4">🎵 音乐会自己响起 · 进入后自动开启手势识别</div>
   </div>
   <div class="ec-foot">DEC 19 — 25 · 2026 · 七 个 夜 晚</div>
-  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v15.4 · 1127</div>
+  <div style="position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:2px;color:rgba(243,233,210,.38);font-family:'Cormorant Garamond',serif">BUILD v15.5 · 1127</div>
 </div>
 
 <!-- 手势教学 -->
@@ -1941,7 +1941,9 @@ $("zenBtn").addEventListener("click",function(){
   zen=!zen;
   var dis=zen?"none":"";
   $("railWrap").style.display=dis;$("gestHint").style.display=dis;$("mast").style.display=dis;
+  $("packLayer").style.display=dis; /* 沉浸=收起卡包/贺卡，整棵树让出来 */
   $("zenBtn").classList.toggle("off",!zen);
+  if(zen)toastMsg("沉浸夜空 ✦ 树上的挂饰，可以试着按顺序点亮…");
 });
 $("bgmBtn").addEventListener("click",function(){
   var v=$("bgm");
